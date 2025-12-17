@@ -11,7 +11,7 @@ oguzhan learns RT systems and engine subsystems
 Time Hierarchy:
 
 ┌─────────────────────────────┐
-│       ENGINE CORE           │ Engine core never depends or driven by any subsystem!
+│       ENGINE CORE           │
 │   (monotonic clock)         │
 ├─────────────────────────────┤
 │   SYSTEM SCHEDULING         │ 
@@ -37,9 +37,9 @@ Time Hierarchy:
 ## What I learned
 
 Sample working frequencies:
-Physics tick: 60 Hz
-Render submit: ~144 Hz
-Audio callback: 48kHz
+Physics tick: 60 Hz \
+Render submit: ~144 Hz \
+Audio callback: 48kHz \
 No drift detected
 
 ASCII timeflow:
