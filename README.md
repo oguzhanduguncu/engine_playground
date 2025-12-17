@@ -8,21 +8,6 @@ oguzhan learns RT systems and engine subsystems
 | Audio       | Callback driven | Hard RT               |
 | Render      | Variable        | Visual output         |
 
-Time Hierarchy:
-
-┌─────────────────────────────┐
-│ ENGINE CORE │
-│ (monotonic clock) │
-|
-├─────────────────────────────┤
-│ SYSTEM SCHEDULING │
-│ (tick / callback) │
-|
-├─────────────────────────────┤
-│ SUBSYSTEMS │
-│ Physics / Audio / Render │
-|
-└─────────────────────────────┘
 
 # LAB 1 — Engine Core / Time Ownership
 
