@@ -1,7 +1,7 @@
 # engine_playground
 oguzhan learns RT systems and engine subsystems
 
-| System      | Type of Time    | Feature               |
+| System      | Rhythm Type      | Feature               |
 | ----------- | --------------- | --------------------- |
 | Engine Core | Monotonic       | Real owner of the time|
 | Physics     | Fixed timestep  | Deterministic         |
@@ -13,12 +13,15 @@ Time Hierarchy:
 ┌─────────────────────────────┐
 │ ENGINE CORE │
 │ (monotonic clock) │
+|
 ├─────────────────────────────┤
 │ SYSTEM SCHEDULING │
 │ (tick / callback) │
+|
 ├─────────────────────────────┤
 │ SUBSYSTEMS │
 │ Physics / Audio / Render │
+|
 └─────────────────────────────┘
 
 # LAB 1 — Engine Core / Time Ownership
