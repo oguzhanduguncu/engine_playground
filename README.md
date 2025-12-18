@@ -50,20 +50,19 @@ oguzhan learns RT systems and engine subsystems
   alpha = accumulator / dt
   render_state = lerp(prev_state, curr_state, alpha)
 
-  Also, there is a CCD method. It continiously simulates the stated objects. Therefore, it does not miss any collision and does not tunnel. It checks time discrete timesteps again, but for the fixed timestep calculations are linear,
-  thus collision time is computable. For the computed time intervals, volume will be calculated then intersection can be found for the time of the hit.
+  Continuous Collision Detection (CCD) does not simulate continuously.
+Instead, it analytically computes the time of impact between objects over a fixed timestep by sweeping volumes along their trajectories. CCD allows collision detection to be independent of timestep size, as long as motion can be approximated linearly over dt. Therefore, it does not miss any collision and does not tunnel. It checks time discrete timesteps again, but for the fixed timestep calculations are linear, thus collision time is computable. For the computed time intervals, volume will be calculated then intersection can be found for the time of the hit.
 
 ## Audio as a separate time domain
-  Audio is the hard real time system of this engine. It only depends on the monothonic clock(Not places in the infinite loop). Because, it produces a buffer and it will be used instantly. Everyting it uses must be computable. There is no kernel call,
-  no 3rd party not-RT library and no locks. It just uses an already allocated memory.
+  Audio is the hard real time system of this engine. Audio runs in a hard real-time domain driven by the audio device clock, not by the engine loop.(The engine can only communicate with the audio system through lock-free, non-blocking control paths). Because, it produces a buffer and it will be used instantly. Everyting it uses must be computable. There is no kernel call, no 3rd party not-RT library and no locks. It just uses an already allocated memory.
 ## Thread model
-  Audio runs on the different thread than other systems. Because, for the real time systems, we do not want any loss of time like cache miss or an unbounded operation.
+  Audio runs on the different thread than other systems. Because, for the real time systems, we do not want any loss of time like cache miss or an unbounded operation.Audio is isolated on its own thread to guarantee bounded execution time and avoid interference from cache misses, locks, or unbounded operations in other systems.
 ## Common pitfalls
 
 ## What this lab does NOT do
   This is just an experimental LAB to see the different type of systems. It is NOT a product.
 ## What I learned
-  I just learned how to synchronize different type of systems in an engine by system rythms. 
+  I learned how different subsystems operate under fundamentally different time constraints and how an engine core must coordinate them without forcing a single frame-based timeline.
 Sample working frequencies:
 Physics tick: 60 Hz \
 Render submit: 120 Hz \
@@ -81,7 +80,7 @@ Render:     |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   
             0   1   2   3   4   5   6   7   8   9   10  11  12  13  14  15  16  17  18  19  20  21  22  23  24  
 Audio:      | . . . . |. . . . .| . . . . |. . . . .| . . . . |. . . . .| . . . . |. . . . .| . . . . |. . . . .|
             0         1         2         3         4         5         6         7         8         9         10
-              48 kHz audio callbacks (sample ticks)
+              48 kHz sample ticks (buffered callbacks)
 Audio does not depend on engine core
 Physics needs accumulator
 render needs interpolation
