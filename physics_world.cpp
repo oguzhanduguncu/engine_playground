@@ -1,7 +1,7 @@
 //
 // Created by oguzh on 20.12.2025.
 //
-
+// Simulation for fixed timestep
 #include "physics_world.h"
 
 #include "Integrator.h"

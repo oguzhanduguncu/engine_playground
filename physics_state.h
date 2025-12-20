@@ -6,7 +6,7 @@
 #define PHYSICS_STATE_H
 
 struct PhysicsState {
-    double acceleration = 1.7;
+    double acceleration = 9.7;
     double velocity = 0.0;
     double position = 0.0;
 };
