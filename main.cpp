@@ -7,7 +7,6 @@
 std::mt19937 rng{std::random_device{}()};
 std::uniform_int_distribution<int> jitter_ms(-5, 5);
 
-
 int main() {
     constexpr double physics_dt = 1.0 / 60.0; // 60 Hz physics
     PhysicsWorld world(physics_dt);
@@ -26,6 +25,9 @@ int main() {
         std::cout << "Frame: " << frame
                   << " | Physics steps: "
                   << world.step_count() << '\n';
+
+        std::cout << time << ", " << world.velocity() << ", " << world.position() << "\n";
+
 
         std::this_thread::sleep_for(std::chrono::milliseconds(base_ms + jitter));
     }

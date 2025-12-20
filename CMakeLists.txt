@@ -3,4 +3,4 @@ project(engineloop)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(engineloop physics_world.cpp main.cpp)
+add_executable(engineloop physics_world.cpp Integrator.cpp main.cpp)

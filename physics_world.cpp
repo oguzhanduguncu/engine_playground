@@ -4,10 +4,12 @@
 
 #include "physics_world.h"
 
+#include "Integrator.h"
+
 PhysicsWorld::PhysicsWorld(double fixed_dt_seconds)
     : m_fixed_dt(fixed_dt_seconds) {}
 
-void PhysicsWorld::update(double frame_dt_seconds) {
+void PhysicsWorld::update(const double frame_dt_seconds) {
     m_accumulator += frame_dt_seconds;
 
     while (m_accumulator >= m_fixed_dt) {
@@ -16,7 +18,16 @@ void PhysicsWorld::update(double frame_dt_seconds) {
     }
 }
 
+double PhysicsWorld::position() const {
+    return m_state.position;
+}
+
+double PhysicsWorld::velocity() const {
+    return m_state.velocity;
+}
+
 void PhysicsWorld::step() {
+    Integrator::semi_implicit_euler(m_state, m_fixed_dt);
     ++m_steps;
 }
 
