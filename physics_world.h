@@ -19,7 +19,7 @@ public:
 
     std::uint64_t step_count() const noexcept;
 
-    bool solve_toi_accel(double x0, double v0, double a, double wall_x, double dt, double &t_hit);
+    HitInfo compute_toi_quad(PhysicsState&, double);
 
     double position() const;
 

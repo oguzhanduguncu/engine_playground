@@ -67,7 +67,7 @@ void PhysicsWorld::step_with_ccd(double dt) {
     // Snapshot for render + replay
 
     // Calculate the TOI
-    const HitInfo hit = compute_toi(m_curr, dt);
+    const HitInfo hit = compute_toi_quad(m_curr, dt);
 
     if (!hit.hit()) {
         Integrator::semi_implicit_euler(m_curr, dt);
@@ -111,3 +111,23 @@ void PhysicsWorld::resolve_collision(PhysicsState &m_curr, HitInfo hit ) {
     m_curr.velocity = -m_curr.velocity;
 }
 
+HitInfo PhysicsWorld::compute_toi_quad(PhysicsState& m_curr, double dt) {
+    const double x0 = m_curr.position;
+    const double v0 = m_curr.velocity;
+    const double a = m_curr.acceleration;
+    double r1 = 0.0;
+    double r2 = 0.0;
+    double discriminant = v0*v0 - 4 * (x0-wall_x) * a/2;
+    HitInfo hit;
+
+    if (v0 > 0.0 && x0 < wall_x) {
+        double t_hit = 0.0;
+        r1 = (-v0 + sqrt(discriminant))/(2*a);
+        r2 = (-v0 - sqrt(discriminant))/(2*a);
+        if (r1 > 0.0 && r1 <= dt) t_hit = r1;
+        if (r2 > 0.0 && r2 <= dt) t_hit = std::min(t_hit, r2);
+        hit.time(t_hit);
+        hit.hit(true);
+    }
+    return hit;
+}
