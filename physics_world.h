@@ -29,7 +29,7 @@ public:
 
     const PhysicsState& previous() const;
 
-    HitInfo compute_toi(PhysicsState, double);
+    HitInfo compute_toi(PhysicsState&, double);
 
 private:
     void step(); // one fixed physics step

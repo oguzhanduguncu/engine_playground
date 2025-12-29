@@ -47,54 +47,16 @@ void PhysicsWorld::step() {
 
 void PhysicsWorld::step(double dt) {
 
-    // if (!(m_curr.velocity && m_curr.acceleration)) {
-    //     // sleeping body -> no-op
-    //     return;
-    // }
+    if ((m_curr.acceleration == 0.0) && (m_curr.velocity == 0.0)) {
+        // sleeping body -> no-op
+        return;
+    }
     m_prev = m_curr;
     if ((wall_x - m_curr.position) < m_curr.velocity*dt ) {
         step_with_ccd(dt);
     } else {
         Integrator::semi_implicit_euler(m_curr,dt);
     }
-   /* m_prev = m_curr;
-
-    const double x0 = m_curr.position;
-    const double v0 = m_curr.velocity;
-
-    bool hit = false;
-    double t_hit = dt;
-
-    // 1) TOI (linear CCD)
-    if (v0 > 0.0 && x0 < wall_x) {
-        const double t = (wall_x - x0) / v0;
-        if (t >= 0.0 && t <= dt) {
-            hit = true;
-            t_hit = t;
-        }
-    }
-
-    // 2) integrate until hit (or full dt)
-    m_curr.position = x0 + v0 * t_hit;
-
-
-    // 3) resolve collision
-    if (hit) {
-        m_curr.velocity = -m_curr.velocity;
-
-        std::cout << "[CCD] hit t=" << t_hit
-                  << " x=" << m_curr.position
-                  << " v=" << m_curr.velocity << "\n";
-    }
-
-    // 4) integrate remaining part with new velocity
-    const double remaining = dt - t_hit;
-    if (remaining > 0.0) {
-        m_curr.position += m_curr.velocity * remaining;
-    }
-
-    ++m_steps;
-    m_curr.velocity += m_curr.acceleration * dt;*/
     ++m_steps;
 }
 
@@ -129,7 +91,7 @@ std::uint64_t PhysicsWorld::step_count() const noexcept {
     return m_steps;
 }
 
-HitInfo PhysicsWorld::compute_toi(PhysicsState m_curr, double dt) {
+HitInfo PhysicsWorld::compute_toi(PhysicsState &m_curr, double dt) {
     const double x0 = m_curr.position;
     const double v0 = m_curr.velocity;
     HitInfo hit;
