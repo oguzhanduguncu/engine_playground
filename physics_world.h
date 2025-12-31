@@ -35,7 +35,6 @@ public:
 
     double collision_time() const;
 
-private:
     void step(); // one fixed physics step
 
     void step(double dt);
@@ -44,6 +43,9 @@ private:
 
     void resolve_collision(PhysicsState&, HitInfo);
 
+    const HitInfo& getHit() const;
+
+private:
     PhysicsState m_prev;
     PhysicsState m_curr;
     PhysicsState m_state;

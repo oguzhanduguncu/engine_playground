@@ -125,3 +125,7 @@ double PhysicsWorld::accumulator() const {
 double PhysicsWorld::collision_time() const {
     return hit.time();
 }
+
+const HitInfo& PhysicsWorld::getHit() const {
+    return hit;
+}

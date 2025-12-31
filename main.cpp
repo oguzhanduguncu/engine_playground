@@ -45,7 +45,7 @@ int main() {
         collision_global_time = simulation_time - frame_dt.count() + world.collision_time();
         collision_position = world.current().acceleration * collision_global_time * collision_global_time / 2;
         //Edge triggered collision check
-        if (world.check_collision()) {
+        if (world.check_collision() && !prev_hit) {
             std::cout << "\n[CCD] collision at x=" << collision_position
               << " t=" << collision_global_time << "\n";
         }

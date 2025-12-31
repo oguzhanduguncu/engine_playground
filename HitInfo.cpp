@@ -4,7 +4,6 @@
 
 #include "HitInfo.h"
 
-HitInfo::HitInfo() : state(false), t(0.0) {};
 
 bool HitInfo::hit() const {
     return state;
@@ -21,3 +20,9 @@ double HitInfo::time() const {
 void HitInfo::time(double t_hit) {
     t = t_hit;
 }
+
+const Vec2& HitInfo::contactPoint() const { return point; }
+const Vec2& HitInfo::contactNormal() const { return normal; }
+
+void HitInfo::setContactPoint(const Vec2& p) { point = p; }
+void HitInfo::setContactNormal(const Vec2& n) { normal = n; }
