@@ -18,7 +18,6 @@ double wall_x = 10;
 int main() {
     constexpr double physics_dt = 1.0 / 60.0; // 60 Hz physics
     PhysicsWorld world(physics_dt);
-    physics_world_variable world_variable(physics_dt);
 
     auto last = engine::now();
 
@@ -30,7 +29,6 @@ int main() {
         int jitter = jitter_ms(rng); // simulation of unsteady frame pacing
 
         world.update(frame_dt.count());
-        world_variable.update(frame_dt.count());
         simulation_time += frame_dt.count();
 
         const double alpha = world.accumulator()/frame_dt.count();
@@ -38,8 +36,13 @@ int main() {
             interpolate(world.previous().position2d.x,
                         world.current().position2d.x,
                         alpha);
+        const Vec2 render =
+            interpolate(world.previous().position2d,
+                        world.current().position2d,
+                        alpha);
 
-        render_console(render_x, wall_x);
+        //render_console(render_x, wall_x);
+        render_console_2d(render,wall_x, 10, 10);
 
         // Debug
         collision_global_time = simulation_time - frame_dt.count() + world.collision_time();

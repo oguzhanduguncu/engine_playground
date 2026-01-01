@@ -23,23 +23,17 @@ void PhysicsWorld::update(const double frame_dt_seconds) {
     }
 }
 
-double PhysicsWorld::position() const {
-    return m_state.position;
+Vec2 PhysicsWorld::position() const {
+    return m_state.position2d;
 }
 
-double PhysicsWorld::velocity() const {
-    return m_state.velocity;
+Vec2 PhysicsWorld::velocity() const {
+    return m_state.velocity2d;
 }
 
 void PhysicsWorld::step(double dt) {
-
-    if ((m_curr.acceleration == 0.0) && (m_curr.velocity == 0.0)) {
-        // sleeping body -> no-op
-        return;
-    }
-    sync_1d_to_2d();
     m_prev = m_curr;
-    if ((wall_x - m_curr.position) < m_curr.velocity*dt ) {
+    if ((wall_x - m_curr.position2d.x) < m_curr.velocity2d.x*dt ) {
         step_with_ccd(dt);
     } else {
         hit.hit(false);
@@ -81,13 +75,13 @@ std::uint64_t PhysicsWorld::step_count() const noexcept {
 
 
 void PhysicsWorld::resolve_collision(PhysicsState &m_curr, HitInfo hit ) {
-    m_curr.velocity = -m_curr.velocity;
+    m_curr.velocity2d.x = -m_curr.velocity2d.x;
 }
 
 HitInfo PhysicsWorld::compute_toi(PhysicsState& m_curr, double dt) {
-    const double x0 = m_curr.position;
-    const double v0 = m_curr.velocity;
-    const double a = m_curr.acceleration;
+    const double x0 = m_curr.position2d.x;
+    const double v0 = m_curr.velocity2d.x;
+    const double a = m_curr.acceleration2d.x;
     double r1 = 0.0;
     double r2 = 0.0;
     double discriminant = v0*v0 - 4 * (x0-wall_x) * a/2;
@@ -124,12 +118,4 @@ double PhysicsWorld::collision_time() const {
 
 const HitInfo& PhysicsWorld::getHit() const {
     return hit;
-}
-
-void PhysicsWorld::sync_1d_to_2d() {
-    m_curr.position2d.x = m_curr.position;
-    m_curr.position2d.y = 0.0;
-
-    m_curr.velocity2d.x = m_curr.velocity;
-    m_curr.velocity2d.y = 0.0;
 }

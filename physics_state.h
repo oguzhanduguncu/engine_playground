@@ -7,13 +7,9 @@
 #include "vec2.h"
 
 struct PhysicsState {
-    double acceleration = 9.7;
-    double velocity = 0.0;
-    double position = 0.0;
-
-    Vec2 acceleration2d {9.7 , 0.0};
-    Vec2 velocity2d;
-    Vec2 position2d;
+    Vec2 acceleration2d {9.7 , 9.7};
+    Vec2 velocity2d {0.0, 0.0};
+    Vec2 position2d {0.0, 0.0};
 };
 
 #endif //PHYSICS_STATE_H

@@ -15,11 +15,11 @@ void physics_world_variable::update(double frame_dt) {
 }
 
 double physics_world_variable::velocity() const {
-    return m_state.velocity;
+    return m_state.velocity2d.x;
 }
 
 double physics_world_variable::position() const {
-    return m_state.position;
+    return m_state.position2d.x;
 }
 
 

@@ -19,9 +19,9 @@ public:
 
     std::uint64_t step_count() const noexcept;
 
-    double position() const;
+    Vec2 position() const;
 
-    double velocity() const;
+    Vec2 velocity() const;
 
     const PhysicsState& current() const;
 
@@ -44,8 +44,6 @@ public:
     void resolve_collision(PhysicsState&, HitInfo);
 
     const HitInfo& getHit() const;
-
-    void sync_1d_to_2d();
 
 private:
     PhysicsState m_prev;
