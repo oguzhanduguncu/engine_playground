@@ -32,12 +32,29 @@ public:
 
     void step_bodies(double dt);
 
+    void solve_contacts(double dt, double restitution);
+
+    void solve_split_impulse(double dt);
+
+    void integrate_pseudo(double dt);
+
     const std::vector<ContactManifold>& getManifolds() const;
 
-    std::vector<Body> bodies;
+    std::vector<Body>& getBodies();
+
+    bool discrete_wall_contact(
+    const Body& b,
+    const Body& wall,
+    ContactManifold& out
+);
+    void merge_manifold(
+    std::vector<ContactManifold>& dst,
+    const ContactManifold& m
+);
 
 private:
     std::vector<ContactManifold> manifolds;
+    std::vector<Body> bodies;
     const double m_fixed_dt;
     double m_accumulator = 0.0;
     std::uint64_t m_steps = 0;

@@ -22,8 +22,8 @@ int main() {
 
     Body b;
     b.id = 0;
-    b.position = {0.5, 0.5};
-    b.velocity = {0.0, 0.0};
+    b.position = {0.0, 0.0};
+    b.velocity = {0.0, 1.0};
     b.acceleration = {5.0, 5.0};
     b.invMass = 1.0;
 
@@ -34,8 +34,8 @@ int main() {
     wall.acceleration = { 0.0, 0.0 };
     wall.invMass = 0.0; // static
 
-    world.bodies.push_back(b);
-    world.bodies.push_back(wall);
+    world.getBodies().push_back(b);
+    world.getBodies().push_back(wall);
 
     for (int frame = 0; frame < 150; ++frame) {
         auto now = engine::now();
@@ -50,7 +50,7 @@ int main() {
 
         //render
         render_console_2d(
-            world.bodies[0].position,
+            world.getBodies()[0].position,
             wall.position.x,10,10,
             world.getManifolds()
         );
