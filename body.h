@@ -4,7 +4,7 @@
 
 #ifndef BODY_H
 #define BODY_H
-#include "vec2.h"
+#include "glm/vec2.hpp"
 #include <cstdint>
 
 enum class BodyType {
@@ -18,12 +18,12 @@ using BodyID = uint32_t;
 struct Body {
     BodyID id;
     BodyType type;
-    Vec2 position{0.0, 0.0};
-    Vec2 velocity {0.0 ,0.0};
-    Vec2 acceleration {0.0 ,0.0};
-    Vec2 pseudoVelocity = {0.0, 0.0};
+    glm::vec2 position{0.0, 0.0};
+    glm::vec2 velocity {0.0 ,0.0};
+    glm::vec2 acceleration {0.0 ,0.0};
+    glm::vec2 pseudoVelocity = {0.0, 0.0};
 
-    double invMass {0.0};  // 1/mass, for static bodies invMass = 0 e.g:wall
+    float invMass {0.0};  // 1/mass, for static bodies invMass = 0 e.g:wall
 
 //    Shape shape;
 };

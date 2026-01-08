@@ -17,11 +17,19 @@ add_executable(engineloop
         main.cpp
 )
 
-target_compile_options(engineloop PRIVATE
-        -Wall
-        -Wextra
-        -Wpedantic
-)
+target_include_directories(engineloop PRIVATE external/glm)
+
 if(UNIX)
+    target_compile_options(engineloop PRIVATE
+            -Wall
+            -Wextra
+            -Wpedantic
+    )
+
     target_link_libraries(engineloop PRIVATE m)
+elseif (MSVC)
+    target_compile_options(engineloop PRIVATE
+            /W4
+            /permissive-
+    )
 endif()

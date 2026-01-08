@@ -4,13 +4,13 @@
 
 #ifndef CONTACT_H
 #define CONTACT_H
-#include "vec2.h"
+#include "glm/vec2.hpp"
 
 struct ContactPoint {
-    Vec2 position;     // world space
-    Vec2 normal;       // normalized
+    glm::vec2 position;     // world space
+    glm::vec2 normal;       // normalized
     float penetration; // <= 0 for touching
-    double Pn = 0.0;    // accumulated normal impulse
-    double Pt = 0.0;    // accumulated tangent impulse
+    float Pn = 0.0f;    // accumulated normal impulse
+    float Pt = 0.0f;    // accumulated tangent impulse
 };
 #endif //CONTACT_H

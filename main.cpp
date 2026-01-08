@@ -8,14 +8,14 @@
 #include "body.h"
 
 std::mt19937 rng{std::random_device{}()};
-std::uniform_int_distribution<int> jitter_ms(-5, 5);
-double simulation_time;
-double collision_global_time;
-double collision_position;
+std::uniform_int_distribution jitter_ms(-5, 5);
+float simulation_time;
+float collision_global_time;
+float collision_position;
 bool prev_hit;
 
 int main() {
-    constexpr double physics_dt = 1.0 / 60.0; // 60 Hz physics
+    constexpr float physics_dt = 1.0f / 60.0f; // 60 Hz physics
     PhysicsWorld world(physics_dt);
 
     auto last = engine::now();
@@ -41,7 +41,7 @@ int main() {
 
     for (int frame = 0; frame < 300; ++frame) {
         auto now = engine::now();
-        std::chrono::duration<double> frame_dt = now - last;
+        std::chrono::duration<float> frame_dt = now - last;
         last = now;
         int base_ms = 16; // ~60 FPS
         int jitter = jitter_ms(rng); // simulation of unsteady frame pacing

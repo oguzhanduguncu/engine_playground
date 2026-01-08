@@ -10,22 +10,22 @@
 
 #include "contact.h"
 
-double interpolate(double prev, double curr, double alpha) {
+float interpolate(float prev, float curr, float alpha) {
     return prev + (curr - prev) * alpha;
 }
 
-Vec2 interpolate(const Vec2& prev,
-                 const Vec2& curr,
-                 double alpha)
+glm::vec2 interpolate(const glm::vec2& prev,
+                 const glm::vec2& curr,
+                 float alpha)
 {
-    return Vec2{
+    return glm::vec2{
         interpolate(prev.x, curr.x, alpha),
         interpolate(prev.y, curr.y, alpha)
     };
 }
 
 
-void render_console(double x, double wall_x) {
+void render_console(float x, float wall_x) {
     constexpr int width = 60;
     int pos = static_cast<int>((x / wall_x) * width);
     pos = std::clamp(pos, 0, width - 1);
@@ -38,8 +38,8 @@ void render_console(double x, double wall_x) {
 }
 
 void render_console_2d(
-    const Vec2& pos,
-    double wall_x,
+    const glm::vec2& pos,
+    float wall_x,
     int width,
     int height,
     const std::vector<ContactManifold>& manifolds
@@ -57,18 +57,18 @@ void render_console_2d(
     if (!std::isfinite(wall_x) || std::abs(wall_x) < 1e-6)
         return;
 
-    double world_y_max = wall_x * static_cast<double>(height) / width;
+    float world_y_max = wall_x * static_cast<float>(height) / width;
     if (!std::isfinite(world_y_max) || std::abs(world_y_max) < 1e-6)
         return;
 
-    double nx = pos.x / wall_x;
-    double ny = pos.y / world_y_max;
+    float nx = pos.x / wall_x;
+    float ny = pos.y / world_y_max;
 
     if (!std::isfinite(nx) || !std::isfinite(ny))
         return;
 
-    nx = std::clamp(nx, 0.0, 1.0);
-    ny = std::clamp(ny, 0.0, 1.0);
+    nx = std::clamp(nx, 0.0f, 1.0f);
+    ny = std::clamp(ny, 0.0f, 1.0f);
 
     int sx = static_cast<int>(nx * (width  - 1));
     int sy = static_cast<int>(ny * (height - 1));
@@ -113,21 +113,21 @@ void render_console_2d(
 
 
 inline ScreenPoint world_to_screen(
-    const Vec2& p,
-    double wall_x,
+    const glm::vec2& p,
+    float wall_x,
     int width,
     int height
 ) {
-    double world_y_max = wall_x * static_cast<double>(height) / width;
+    float world_y_max = wall_x * static_cast<float>(height) / width;
 
-    double nx = p.x / wall_x;
-    double ny = p.y / world_y_max;
+    float nx = p.x / wall_x;
+    float ny = p.y / world_y_max;
 
-    nx = std::clamp(nx, 0.0, 1.0);
-    ny = std::clamp(ny, 0.0, 1.0);
+    nx = std::clamp(nx, 0.0f, 1.0f);
+    ny = std::clamp(ny, 0.0f, 1.0f);
 
-    int sx = static_cast<int>(nx * (width  - 1) + 0.5);
-    int sy = static_cast<int>(ny * (height - 1) + 0.5);
+    int sx = static_cast<int>(nx * static_cast<float>(width  - 1) + 0.5f);
+    int sy = static_cast<int>(ny * static_cast<float>(height - 1) + 0.5f);
 
     return {
         sx,
@@ -137,21 +137,21 @@ inline ScreenPoint world_to_screen(
 
 void draw_contact_point(
     std::vector<std::string>& grid,
-    const Vec2& p,
-    double wall_x
+    const glm::vec2& p,
+    float wall_x
 ) {
-    int height = grid.size();
-    int width  = grid[0].size();
+    const size_t height = grid.size();
+    const size_t width  = grid[0].size();
 
-    ScreenPoint sp = world_to_screen(p, wall_x, width, height);
+    ScreenPoint sp = world_to_screen(p, wall_x, static_cast<int>(width), static_cast<int>(height));
     grid[sp.y][sp.x] = 'x';
 }
 
 void draw_contact_normal(
     std::vector<std::string>& grid,
-    const Vec2& p,
-    const Vec2& n,
-    double wall_x
+    const glm::vec2& p,
+    const glm::vec2& n,
+    float wall_x
 ) {
     int height = grid.size();
     int width  = grid[0].size();
@@ -161,7 +161,7 @@ void draw_contact_normal(
     constexpr int len = 3;
 
     for (int i = 1; i <= len; ++i) {
-        Vec2 q = {
+        glm::vec2 q = {
             p.x + n.x * 0.1 * i,
             p.y + n.y * 0.1 * i
         };

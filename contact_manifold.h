@@ -9,8 +9,8 @@
 
 struct ContactManifold {
     static constexpr size_t MAX_POINTS = 2;
-    BodyID bodyA;
-    BodyID bodyB;
+    BodyID bodyA = UINT32_MAX;
+    BodyID bodyB = UINT32_MAX;
     ContactPoint points[MAX_POINTS];
     int pointCount = 0;
 };

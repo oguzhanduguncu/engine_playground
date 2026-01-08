@@ -5,44 +5,42 @@
 #ifndef PHYSICS_WORLD_H
 #define PHYSICS_WORLD_H
 #include <cstdint>
-#include <iosfwd>
 #include <vector>
 
-#include "physics_state.h"
 #include "body.h"
 #include "contact_manifold.h"
 
 class PhysicsWorld {
 public:
-    static constexpr double slop = 0.001;
+    static constexpr float slop = 0.001f;
 
-    static constexpr double eps = 1e-6;
+    static constexpr float eps = 1e-6f;
 
-    explicit PhysicsWorld(double fixed_dt_seconds);
+    explicit PhysicsWorld(float fixed_dt_seconds);
 
-    void update_kinematics(double dt);
+    void update_kinematics(float dt);
 
-    void update(double frame_dt_seconds);
+    void update(float frame_dt_seconds);
 
-    void fixed_step(double dt);
+    void fixed_step(float dt);
 
-    std::uint64_t step_count() const noexcept;
+    [[nodiscard]] std::uint64_t step_count() const noexcept;
 
-    void step_bodies_with_ccd(double dt, std::vector<ContactManifold> &manifolds);
+    void step_bodies_with_ccd(float dt, std::vector<ContactManifold> &contact_manifolds);
 
-    Vec2 position() const;
+    [[nodiscard]] glm::vec2 position() const;
 
-    Vec2 velocity() const;
+    [[nodiscard]] glm::vec2 velocity() const;
 
-    double accumulator() const;
+    [[nodiscard]] float accumulator() const;
 
-    void solve_contacts(double dt, double restitution);
+    void solve_contacts(float dt, float restitution);
 
-    void solve_split_impulse(double dt);
+    void solve_split_impulse(float dt);
 
-    void integrate_pseudo(double dt);
+    void integrate_pseudo(float dt);
 
-    const std::vector<ContactManifold>& getManifolds() const;
+    [[nodiscard]] const std::vector<ContactManifold>& getManifolds() const;
 
     std::vector<Body>& getBodies();
 
@@ -59,8 +57,8 @@ public:
 private:
     std::vector<ContactManifold> manifolds;
     std::vector<Body> bodies;
-    const double m_fixed_dt;
-    double m_accumulator = 0.0;
+    const float m_fixed_dt;
+    float m_accumulator = 0.0;
     std::uint64_t m_steps = 0;
 };
 

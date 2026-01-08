@@ -10,7 +10,7 @@
 struct Integrator {
     static void semi_implicit_euler(
         Body& b,
-        double dt
+        float dt
     );
 };
 
