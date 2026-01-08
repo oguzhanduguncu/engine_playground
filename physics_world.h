@@ -14,6 +14,10 @@
 
 class PhysicsWorld {
 public:
+    static constexpr double slop = 0.001;
+
+    static constexpr double eps = 1e-6;
+
     explicit PhysicsWorld(double fixed_dt_seconds);
 
     void update_kinematics(double dt);

@@ -37,22 +37,44 @@ void render_console(double x, double wall_x) {
     std::cout << line << std::flush;
 }
 
-void render_console_2d(const Vec2& pos,
-                       double wall_x,
-                       int width,
-                       int height,
-                       const std::vector<ContactManifold>& manifolds)
-{
+void render_console_2d(
+    const Vec2& pos,
+    double wall_x,
+    int width,
+    int height,
+    const std::vector<ContactManifold>& manifolds
+) {
+    if (width <= 0 || height <= 0)
+        return;
+
+    if (!std::isfinite(pos.x) || !std::isfinite(pos.y))
+        return;
+
+    // workaround for render
+    if (std::abs(wall_x) < 1e-6)
+        wall_x = 1.0;
+
+    if (!std::isfinite(wall_x) || std::abs(wall_x) < 1e-6)
+        return;
+
     double world_y_max = wall_x * static_cast<double>(height) / width;
+    if (!std::isfinite(world_y_max) || std::abs(world_y_max) < 1e-6)
+        return;
 
     double nx = pos.x / wall_x;
     double ny = pos.y / world_y_max;
 
+    if (!std::isfinite(nx) || !std::isfinite(ny))
+        return;
+
     nx = std::clamp(nx, 0.0, 1.0);
     ny = std::clamp(ny, 0.0, 1.0);
 
-    int sx = static_cast<int>(nx * (width  - 1) + 0.5);
-    int sy = static_cast<int>(ny * (height - 1) + 0.5);
+    int sx = static_cast<int>(nx * (width  - 1));
+    int sy = static_cast<int>(ny * (height - 1));
+
+    sx = std::clamp(sx, 0, width  - 1);
+    sy = std::clamp(sy, 0, height - 1);
 
     std::vector<std::string> grid(height, std::string(width, ' '));
 
@@ -60,25 +82,35 @@ void render_console_2d(const Vec2& pos,
         grid[r][width - 1] = '|';
 
     int draw_y = height - 1 - sy;
-    grid[draw_y][sx] = 'o';
+    if (draw_y >= 0 && draw_y < height)
+        grid[draw_y][sx] = 'o';
 
     for (const auto& m : manifolds) {
+        if (m.pointCount <= 0)
+            continue;
+
         for (int i = 0; i < m.pointCount; ++i) {
             const ContactPoint& cp = m.points[i];
+
+            if (!std::isfinite(cp.position.x) ||
+                !std::isfinite(cp.position.y))
+                continue;
+
+            if (!std::isfinite(cp.normal.x) ||
+                !std::isfinite(cp.normal.y))
+                continue;
 
             draw_contact_point(grid, cp.position, wall_x);
             draw_contact_normal(grid, cp.position, cp.normal, wall_x);
         }
     }
-
     std::cout << "\33[2J\33[H";
     for (const auto& row : grid)
         std::cout << row << '\n';
 
-
-
     std::cout << std::flush;
 }
+
 
 inline ScreenPoint world_to_screen(
     const Vec2& p,
