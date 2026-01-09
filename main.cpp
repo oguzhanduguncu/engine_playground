@@ -31,7 +31,7 @@ int main() {
     Body wall;
     wall.id = 1;
     wall.type = BodyType::Kinematic;
-    wall.position = { 0.0, 0.0 };
+    wall.position = { 10.0, 0.0 };
     wall.velocity = { 0.0, 0.0 };
     wall.acceleration = { 0.0, 0.0 };
     wall.invMass = 0.0; // static

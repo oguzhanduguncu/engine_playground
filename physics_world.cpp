@@ -135,32 +135,6 @@ void PhysicsWorld::step_bodies_with_ccd(
         const float v0 = b.velocity.x - wall.velocity.x;
         const float a = b.acceleration.x;
 
-        if (x0 <= slop) {
-            // resting or penetrating
-            ContactManifold m;
-            if (discrete_wall_contact(b, wall, m)) {
-                merge_manifold(manifolds, m);
-            }
-            b.position.y += b.velocity.y * dt;
-            b.velocity.y += b.acceleration.y * dt;
-            continue;
-        }
-
-        if (std::abs(v0) < eps) {
-            Integrator::semi_implicit_euler(b, dt);
-            continue;
-        }
-
-        if (v0 >= 0.0) {
-            Integrator::semi_implicit_euler(b, dt);
-            continue;
-        }
-
-        if (!std::isfinite(x0) || !std::isfinite(v0)) {
-            std::cout << "INVALID RELATIVE STATE\n";
-            continue;
-        }
-
         if (!std::isfinite(x0) || !std::isfinite(v0)) {
             std::cout << "INVALID RELATIVE STATE\n";
             continue;

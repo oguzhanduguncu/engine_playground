@@ -1,0 +1,28 @@
+############################
+# JetBrains / CLion (local)
+############################
+
+# Workspace & user-specific
+.idea
+
+# Optional: if you ever see these
+.idea/**/workspace.xml
+
+############################
+# CMake build directories
+############################
+cmake-build-*/
+
+build/
+
+############################
+# Toolchain / environment
+############################
+*.log
+*.tmp
+
+############################
+# OS junk
+############################
+.DS_Store
+Thumbs.db
