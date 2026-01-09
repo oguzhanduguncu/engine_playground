@@ -31,6 +31,40 @@ void PhysicsWorld::update_kinematics(const float dt)
     }
 }
 
+inline float bottom(const Body& b) {
+    return b.position.y - b.halfHeight;
+}
+
+bool PhysicsWorld::collidesWithGround(const Body& b) {
+    return b.position.y <= GROUND_Y;
+}
+
+void PhysicsWorld::resolveGroundPenetration(Body& b) {
+    float penetration = GROUND_Y - bottom(b);
+    if (penetration > 0.0f) {
+        b.position.y += penetration;
+    }
+}
+
+void resolveGroundVelocity(Body& b) {
+    if (b.velocity.y < 0.0f) {
+        b.velocity.y = 0.0f;
+    }
+}
+
+void PhysicsWorld::solveY(Body& b, float dt) {
+    Integrator::integrateY(b, dt);
+
+    if (collidesWithGround(b)) {
+        resolveGroundPenetration(b);
+        resolveGroundVelocity(b);
+        b.onGround = true;
+    } else {
+        b.onGround = false;
+    }
+}
+
+
 void PhysicsWorld::update(const float frame_dt_seconds)
 {
     update_kinematics(frame_dt_seconds);
@@ -139,6 +173,8 @@ void PhysicsWorld::step_bodies_with_ccd(
             std::cout << "INVALID RELATIVE STATE\n";
             continue;
         }
+
+        solveY(b,dt);
 
         auto toi = compute_toi_1d(x0, v0, a, dt);
 

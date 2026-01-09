@@ -12,6 +12,7 @@ struct Integrator {
         Body& b,
         float dt
     );
+    static void integrateY(Body& b, float dt);
 };
 
 

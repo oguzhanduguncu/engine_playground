@@ -16,10 +16,15 @@ public:
 
     static constexpr float eps = 1e-6f;
 
+    static constexpr float GROUND_Y = 0.0f;
+
     explicit PhysicsWorld(float fixed_dt_seconds);
 
     void update_kinematics(float dt);
 
+    bool collidesWithGround(const Body& b);
+    void resolveGroundPenetration(Body& b);
+    void solveY(Body& b, float dt);
     void update(float frame_dt_seconds);
 
     void fixed_step(float dt);

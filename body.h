@@ -25,6 +25,10 @@ struct Body {
 
     float invMass {0.0};  // 1/mass, for static bodies invMass = 0 e.g:wall
 
+    float halfWidth {0.0};
+    float halfHeight {0.0};
+    bool onGround {false};
+
 //    Shape shape;
 };
 
