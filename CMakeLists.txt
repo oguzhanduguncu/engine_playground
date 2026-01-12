@@ -13,11 +13,12 @@ endif()
 find_package(SDL2 REQUIRED)
 
 add_executable(engineloop
+        render_2d.cpp
+        debug_draw.cpp
         physics_world.cpp
         Integrator.cpp
         render_console.cpp
         main.cpp
-        sdl_smoke_test.cpp
 )
 
 target_link_libraries(engineloop
