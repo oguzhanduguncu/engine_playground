@@ -122,6 +122,8 @@ void render_2d::render(PhysicsWorld& world)
     if (!isValid())
         return;
 
+    handleEvents();
+
     draw_frame(
         m_renderer,
         world
