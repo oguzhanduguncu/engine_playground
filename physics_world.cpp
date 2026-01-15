@@ -11,6 +11,7 @@
 #include <iostream>
 #include <limits>
 #include <vector>
+#include <ranges>
 
 #include "glm/glm.hpp"
 
@@ -60,7 +61,7 @@ void PhysicsWorld::solveY(Body& b, float dt) {
     } else {
         b.onGround = false;
     }
-    Integrator::integrateY(b, dt);
+    Integrator::semi_implicit_euler(b,dt);
 }
 
 
@@ -152,7 +153,34 @@ void PhysicsWorld::step_bodies_with_ccd(
 {
     contact_manifolds.clear();
 
-    Body &wall = bodies[1]; // Kinematic or Static
+    auto boxBodies = bodies | std::views::filter(
+    [](const Body& b) {
+            return b.shape.type == Type::box;
+    });
+
+    auto planeBodies = bodies | std::views::filter(
+    [](const Body& b) {
+        return b.shape.type == Type::plane;
+    });
+
+    auto staticBodies = bodies | std::views::filter(
+    [](const Body& b) {
+        return b.type == BodyType::Static;
+    });
+
+    auto kinematicBodies = bodies | std::views::filter(
+    [](const Body& b) {
+        return b.type == BodyType::Kinematic;
+    });
+
+    Body wall;
+
+    for (Body& kinematics : kinematicBodies)
+    {
+        wall = kinematics;
+    }
+
+ //   Body &wall = bodies[1]; // Kinematic or Static
 
     for (Body &b: bodies) {
         if (b.type != BodyType::Dynamic)

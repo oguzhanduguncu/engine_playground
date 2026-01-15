@@ -33,6 +33,7 @@ static SDL_Point world_to_screen(
 static void draw_point(
     SDL_Renderer* renderer,
     float wx, float wy,
+    Shape body_shape,
     int screen_w, int screen_h,
     float ppm,
     int radius = 3)
@@ -40,10 +41,21 @@ static void draw_point(
     SDL_Point p = world_to_screen(wx, wy, screen_w, screen_h, ppm);
 
     SDL_Rect r;
-    r.x = p.x - radius;
-    r.y = p.y - radius;
-    r.w = radius * 4;
-    r.h = radius * 4;
+    r.x = p.x - radius*3;
+    r.y = p.y - radius*3;
+    r.w = radius * 3;
+    r.h = radius * 3;
+
+    if (body_shape.type == Type::plane)
+    {
+        // draw_line(renderer, -10.0f, 0.0f, 10.0f, 0.0f, screen_w, screen_h, ppm);
+        SDL_Point a = world_to_screen(wx-10.0f, wy, screen_w, screen_h, ppm);
+        SDL_Point b = world_to_screen(wx+10.0f, wy, screen_w, screen_h, ppm);
+
+        SDL_SetRenderDrawColor(renderer, 200, 200, 200, 255);
+        SDL_RenderDrawLine(renderer, a.x, a.y, b.x, b.y);
+        return;
+    }
 
     SDL_RenderFillRect(renderer, &r);
 }
@@ -140,6 +152,7 @@ void debug_draw_body(
         renderer,
         body.position.x,
         body.position.y,
+        body.shape,
         screen_w,
         screen_h,
         ppm
@@ -196,11 +209,6 @@ void draw_frame(
     SDL_RenderClear(renderer);
 
     const float ppm = screen_w / VISIBLE_WORLD_WIDTH;
-
-    // ---- Ground reference line (y = 0) ----
-    SDL_SetRenderDrawColor(renderer, 200, 200, 200, 255);
-    draw_line(renderer, -10.0f, 0.0f, 10.0f, 0.0f, screen_w, screen_h, ppm);
-
 
     // ---- Bodies ----
     for (const Body& body : world.getBodies()) {

@@ -27,23 +27,52 @@ int main()
     b.type = BodyType::Dynamic;
     b.position = {-0.0, 8.0};
     b.velocity = {0.0, 0.0};
-    b.acceleration = {2.8,-9.8};
+    b.acceleration = {0.8,-9.8};
     b.invMass = 1.0;
 
     Body wall;
     wall.id = 1;
     wall.type = BodyType::Kinematic;
-    wall.position = { 8.0, 0.0 };
+    wall.position = { 8.0, 2.0 };
     wall.velocity = { 0.0, 0.0 };
     wall.acceleration = { 0.0, 0.0 };
     wall.invMass = 0.0; // static
 
+    Body b2;
+    b2.id = 2;
+    b2.type = BodyType::Dynamic;
+    b2.position = {-3.0, 8.0};
+    b2.velocity = {0.0, 0.0};
+    b2.acceleration = {0.8,-9.8};
+    b2.invMass = 1.0;
+
+    Body ground;
+    ground.id = 3;
+    ground.type = BodyType::Static;
+    ground.position = {0.0, 0.0};
+    ground.velocity = {0.0, 0.0};
+    ground.acceleration = {0.0,0.0};
+    ground.invMass = 0.0;
+    ground.shape.type = Type::plane;
+
+    Body platform;
+    platform.id = 4;
+    platform.type = BodyType::Static;
+    platform.position = {0.0, 2.0};
+    platform.velocity = {0.0, 0.0};
+    platform.acceleration = {0.0,0.0};
+    platform.invMass = 0.0;
+    platform.shape.type = Type::plane;
+
     world.getBodies().push_back(b);
     world.getBodies().push_back(wall);
+    world.getBodies().push_back(ground);
+    world.getBodies().push_back(platform);
+    world.getBodies().push_back(b2);
 
     render_2d renderer{800,600};
 
-    for (int frame = 0; frame < 150; ++frame) {
+    for (int frame = 0; frame < 300; ++frame) {
         auto now = engine::now();
         std::chrono::duration<float> frame_dt = now - last;
         last = now;
@@ -56,11 +85,6 @@ int main()
 
         renderer.render(world);
 
-        render_console_2d(
-            world.getBodies()[0].position,
-            wall.position.x,10,10,
-            world.getManifolds()
-        );
 
         std::this_thread::sleep_for(std::chrono::milliseconds(base_ms + jitter));
     }

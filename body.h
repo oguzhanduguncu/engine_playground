@@ -6,6 +6,7 @@
 #define BODY_H
 #include "glm/vec2.hpp"
 #include <cstdint>
+#include "shape.h"
 
 enum class BodyType {
     Dynamic,
@@ -29,7 +30,7 @@ struct Body {
     float halfHeight {0.0};
     bool onGround {false};
 
-//    Shape shape;
+    Shape shape;
 };
 
 #endif //BODY_H

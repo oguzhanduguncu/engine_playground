@@ -87,7 +87,6 @@ void render_2d::shutdown()
 void render_2d::handleEvents()
 {
     SDL_PumpEvents();
-
 }
 
 void render_2d::render(PhysicsWorld& world)
