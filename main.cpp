@@ -27,7 +27,7 @@ int main()
     b.type = BodyType::Dynamic;
     b.position = {-0.0, 8.0};
     b.velocity = {0.0, 0.0};
-    b.acceleration = {0.8,-9.8};
+    b.acceleration = {0.3,-9.8};
     b.invMass = 1.0;
 
     Body wall;
@@ -42,7 +42,7 @@ int main()
     b2.id = 2;
     b2.type = BodyType::Dynamic;
     b2.position = {-3.0, 8.0};
-    b2.velocity = {0.0, 0.0};
+    b2.velocity = {0.5, 0.0};
     b2.acceleration = {0.8,-9.8};
     b2.invMass = 1.0;
 

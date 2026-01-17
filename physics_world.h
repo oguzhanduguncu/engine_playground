@@ -25,6 +25,7 @@ public:
     bool collidesWithGround(const Body& b);
     void resolveGroundPenetration(Body& b);
     void solveY(Body& b, float dt);
+    void integrate(std::vector<Body>& b,float dt);
     void update(float frame_dt_seconds);
 
     void fixed_step(float dt);
