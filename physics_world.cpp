@@ -191,56 +191,7 @@ void PhysicsWorld::step_bodies_with_ccd(
            {
                continue;
            }
-
-
-           std::cout << "step=" << m_steps << " xA=" << b.position.x
-                       << " xB=" << wall.position.x << " yA=" << b.position.y
-                       << " yB=" << wall.position.y << " vA=" << b.velocity.x
-                       << " vB=" << wall.velocity.x << "\n";
-
-           // --- RELATIVE MOTION ---
-           const float x0 = b.position.x - wall.position.x;
-           const float v0 = b.velocity.x - wall.velocity.x;
-           const float a = b.acceleration.x;
-
-           if (!std::isfinite(x0) || !std::isfinite(v0)) {
-               std::cout << "INVALID RELATIVE STATE\n";
-                  continue;
-               }
-
-               auto toi = compute_toi_1d(x0, v0, a, dt);
-
-               if (toi.hit) {
-                   const float t = toi.t;
-
-                   // integrate dynamic until TOI
-                   b.position.x += b.velocity.x * t + 0.5 * a * t * t;
-                   b.velocity.x += a * t;
-
-                   b.velocity.y += b.acceleration.y * t;
-                   b.position.y += b.velocity.y * t;
-
-                   // --- CCD contact manifold ---
-                   ContactManifold m;
-                   m.bodyA = b.id;
-                   m.bodyB = wall.id;
-                   m.pointCount = 1;
-                   m.points[0].normal = {-1.0, 0.0};
-                   m.points[0].position = {wall.position.x, b.position.y};
-                   m.points[0].penetration = 0.0;
-
-                   merge_manifold(contact_manifolds, m);
-
-//                   b.acceleration.x = 0;
-//                   wall.acceleration.x = 0;
-//                   b.velocity.x = 0;
-//                   wall.velocity.x = 0;
-
-                   // remaining time
-                   float remaining = dt - t;
-                   Integrator::semi_implicit_euler(b, remaining);
-               }
-
+           check_ccd(b, wall, dt, contact_manifolds);
            }
     }
 
@@ -248,48 +199,7 @@ void PhysicsWorld::step_bodies_with_ccd(
     {
        for(Body& b : dynamicBodies) {
 
-            std::cout << "step=" << m_steps << " xA=" << b.position.x
-                    << " xB=" << wall.position.x << " yA=" << b.position.y
-                    << " yB=" << wall.position.y << " vA=" << b.velocity.x
-                    << " vB=" << wall.velocity.x << "\n";
-
-               // --- RELATIVE MOTION ---
-            const float x0 = b.position.x - wall.position.x;
-            const float v0 = b.velocity.x - wall.velocity.x;
-            const float a = b.acceleration.x;
-
-            if (!std::isfinite(x0) || !std::isfinite(v0)) {
-                std::cout << "INVALID RELATIVE STATE\n";
-                continue;
-            }
-
-            auto toi = compute_toi_1d(x0, v0, a, dt);
-
-            if (toi.hit) {
-                const float t = toi.t;
-
-               // integrate dynamic until TOI
-                b.position.x += b.velocity.x * t + 0.5 * a * t * t;
-                b.velocity.x += a * t;
-
-                b.velocity.y += b.acceleration.y * t;
-                b.position.y += b.velocity.y * t;
-
-                // --- CCD contact manifold ---
-                ContactManifold m;
-                m.bodyA = b.id;
-                m.bodyB = wall.id;
-                m.pointCount = 1;
-                m.points[0].normal = {-1.0, 0.0};
-                m.points[0].position = {wall.position.x, b.position.y};
-                m.points[0].penetration = 0.0;
-
-                merge_manifold(contact_manifolds, m);
-
-                // remaining time
-                float remaining = dt - t;
-                Integrator::semi_implicit_euler(b, remaining);
-            }
+           check_ccd(b, wall, dt, contact_manifolds);
 
             solveY(b,dt);
             // --- DISCRETE CONTACT (STAYING CONTACT) ---
@@ -298,6 +208,51 @@ void PhysicsWorld::step_bodies_with_ccd(
                 merge_manifold(contact_manifolds, m);
            }
        }
+    }
+}
+
+void PhysicsWorld::check_ccd(Body &b, Body &wall, const float dt, std::vector<ContactManifold> &contact_manifolds) {
+    std::cout << "step=" << m_steps << " xA=" << b.position.x
+           << " xB=" << wall.position.x << " yA=" << b.position.y
+           << " yB=" << wall.position.y << " vA=" << b.velocity.x
+           << " vB=" << wall.velocity.x << "\n";
+
+    // --- RELATIVE MOTION ---
+    const float x0 = b.position.x - wall.position.x;
+    const float v0 = b.velocity.x - wall.velocity.x;
+    const float a = b.acceleration.x;
+
+    if (!std::isfinite(x0) || !std::isfinite(v0)) {
+        std::cout << "INVALID RELATIVE STATE\n";
+        return;
+    }
+
+    auto toi = compute_toi_1d(x0, v0, a, dt);
+
+    if (toi.hit) {
+        const float t = toi.t;
+
+        // integrate dynamic until TOI
+        b.position.x += b.velocity.x * t + 0.5 * a * t * t;
+        b.velocity.x += a * t;
+
+        b.velocity.y += b.acceleration.y * t;
+        b.position.y += b.velocity.y * t;
+
+        // --- CCD contact manifold ---
+        ContactManifold m;
+        m.bodyA = b.id;
+        m.bodyB = wall.id;
+        m.pointCount = 1;
+        m.points[0].normal = {-1.0, 0.0};
+        m.points[0].position = {wall.position.x, b.position.y};
+        m.points[0].penetration = 0.0;
+
+        merge_manifold(contact_manifolds, m);
+
+        // remaining time
+        float remaining = dt - t;
+        Integrator::semi_implicit_euler(b, remaining);
     }
 }
 

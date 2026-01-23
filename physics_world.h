@@ -34,6 +34,8 @@ public:
 
     void step_bodies_with_ccd(float dt, std::vector<ContactManifold> &contact_manifolds);
 
+    void check_ccd(Body &b, Body &wall, float dt, std::vector<ContactManifold> &contact_manifolds);
+
     [[nodiscard]] glm::vec2 position() const;
 
     [[nodiscard]] glm::vec2 velocity() const;
