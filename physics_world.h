@@ -12,7 +12,7 @@
 
 class PhysicsWorld {
 public:
-    static constexpr float slop = 0.001f;
+    static constexpr float slop = 0.005f;
 
     static constexpr float eps = 1e-6f;
 

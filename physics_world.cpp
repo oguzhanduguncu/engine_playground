@@ -232,6 +232,10 @@ void PhysicsWorld::check_ccd(Body &b, Body &wall, const float dt, std::vector<Co
     if (toi.hit) {
         const float t = toi.t;
 
+        float distanceY = std::sqrt(wall.position.y - b.position.y);
+        if (distanceY > slop)
+            return;
+
         // integrate dynamic until TOI
         b.position.x += b.velocity.x * t + 0.5 * a * t * t;
         b.velocity.x += a * t;
@@ -291,7 +295,9 @@ bool PhysicsWorld::discrete_wall_contact(
 
     float distance = wall.position.x - b.position.x;
 
-    if (distance > slop)
+    float distanceY = wall.position.y - b.position.y;
+
+    if (distance > slop || distanceY > slop)
         return false;
 
     out.bodyA = b.id;
@@ -348,8 +354,6 @@ void PhysicsWorld::solve_contacts(float dt, float restitution)
         }
         if (!A || !B)
             continue;
-        if (A->type != BodyType::Dynamic)
-            continue;
 
         ContactPoint &cp = m.points[0];
         const glm::vec2 n = cp.normal;
@@ -357,8 +361,6 @@ void PhysicsWorld::solve_contacts(float dt, float restitution)
 
         // --- RELATIVE VELOCITY ---
         glm::vec2 vrel = A->velocity;
-        if (B->type == BodyType::Kinematic)
-            vrel -= B->velocity;
 
         float vn = glm::dot(vrel, n);
         if (vn >= 0.0)
@@ -379,8 +381,6 @@ void PhysicsWorld::solve_contacts(float dt, float restitution)
         float maxPt = mu * cp.Pn;
         cp.Pt = std::clamp(Pt0 + dPt, -maxPt, maxPt);
         dPt = cp.Pt - Pt0;
-
-        A->velocity += t * static_cast<float>(dPt * A->invMass);
     }
 }
 
@@ -397,8 +397,6 @@ void PhysicsWorld::solve_split_impulse(const float dt)
                 B = &b;
         }
         if (!A || !B)
-            continue;
-        if (A->invMass == 0.0)
             continue;
 
         const ContactPoint &cp = m.points[0];
