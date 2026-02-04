@@ -159,21 +159,6 @@ void PhysicsWorld::step_bodies_with_ccd(
 {
     contact_manifolds.clear();
 
-    auto boxBodies = bodies | std::views::filter(
-    [](const Body& b) {
-            return b.shape.type == Type::box;
-    });
-
-    auto planeBodies = bodies | std::views::filter(
-    [](const Body& b) {
-        return b.shape.type == Type::plane;
-    });
-
-    auto staticBodies = bodies | std::views::filter(
-    [](const Body& b) {
-        return b.type == BodyType::Static;
-    });
-
     auto dynamicBodies = bodies | std::views::filter(
         [](const Body& b) {
             return b.type == BodyType::Dynamic;
@@ -339,6 +324,8 @@ void PhysicsWorld::merge_manifold(std::vector<ContactManifold> &dst,
 
 void PhysicsWorld::solve_contacts(float dt, float restitution)
 {
+    (void)dt;
+    (void)restitution;
     for (ContactManifold &m: manifolds) {
         if (m.pointCount == 0)
             continue;

@@ -156,8 +156,6 @@ void draw_contact_normal(
     int height = grid.size();
     int width  = grid[0].size();
 
-    ScreenPoint base = world_to_screen(p, wall_x, width, height);
-
     constexpr int len = 3;
 
     for (int i = 1; i <= len; ++i) {
