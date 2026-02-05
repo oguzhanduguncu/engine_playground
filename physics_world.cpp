@@ -53,6 +53,13 @@ void resolveGroundVelocity(Body& b) {
     }
 }
 
+// Forward declaration for CCD
+struct TOIResult {
+    bool hit = false;
+    float t = 0.0f;
+};
+static TOIResult compute_toi_1d(float x0, float v0, float a, float dt);
+
 void PhysicsWorld::solveY(Body& b, float dt) {
     if (collidesWithGround(b)) {
         resolveGroundPenetration(b);
@@ -61,13 +68,55 @@ void PhysicsWorld::solveY(Body& b, float dt) {
     } else {
         b.onGround = false;
     }
-    Integrator::semi_implicit_euler(b,dt);
+
+    // Y-axis CCD for static platforms (skip ground)
+    for (Body& platform : bodies) {
+        if (platform.type != BodyType::Static)
+            continue;
+        if (platform.shape.type != Type::plane)
+            continue;
+        if (platform.position.y <= GROUND_Y)
+            continue;
+
+        // Relative position (positive = body above platform)
+        float y0 = b.position.y - platform.position.y;
+
+        // Skip if body is below platform
+        if (y0 < -slop)
+            continue;
+
+        // Resting contact: body on platform and trying to fall
+        if (y0 >= -slop && y0 <= slop && b.velocity.y <= 0.0f) {
+            b.position.y = platform.position.y;
+            b.velocity.y = 0.0f;
+            b.onGround = true;
+            return;
+        }
+
+        // CCD: body above platform and falling
+        if (y0 > slop) {
+            float vy = b.velocity.y;
+            float ay = b.acceleration.y;
+
+            auto toi = compute_toi_1d(y0, vy, ay, dt);
+
+            if (toi.hit) {
+                b.position.y = platform.position.y;
+                b.velocity.y = 0.0f;
+                b.onGround = true;
+                return;
+            }
+        }
+    }
+
+    Integrator::semi_implicit_euler(b, dt);
 }
 
 void PhysicsWorld::integrate(std::vector<Body>& b, float dt) {
     for (Body& body: b)
     Integrator::semi_implicit_euler(body, dt);
 }
+
 
 
 void PhysicsWorld::update(const float frame_dt_seconds)
@@ -90,12 +139,6 @@ void PhysicsWorld::fixed_step(float dt)
     solve_split_impulse(dt);
     integrate_pseudo(dt);
 }
-
-struct TOIResult
-{
-    bool hit = false;
-    float t = 0.0;
-};
 
 static TOIResult compute_toi_1d(const float x0, const float v0, const float a,
                                 const float dt) {
@@ -186,13 +229,17 @@ void PhysicsWorld::step_bodies_with_ccd(
 
            check_ccd(b, wall, dt, contact_manifolds);
 
-            solveY(b,dt);
             // --- DISCRETE CONTACT (STAYING CONTACT) ---
             ContactManifold m;
             if (discrete_wall_contact(b, wall, m)) {
                 merge_manifold(contact_manifolds, m);
            }
        }
+    }
+
+    // Solve Y for all dynamic bodies (platform collision)
+    for (Body& b : dynamicBodies) {
+        solveY(b, dt);
     }
 }
 
@@ -217,31 +264,29 @@ void PhysicsWorld::check_ccd(Body &b, Body &wall, const float dt, std::vector<Co
     if (toi.hit) {
         const float t = toi.t;
 
-        float distanceY = std::sqrt(wall.position.y - b.position.y);
+        float distanceY = std::abs(wall.position.y - b.position.y);
         if (distanceY > slop)
             return;
 
-        // integrate dynamic until TOI
-        b.position.x += b.velocity.x * t + 0.5 * a * t * t;
+        // integrate x-axis only until TOI
+        b.position.x += b.velocity.x * t + 0.5f * a * t * t;
         b.velocity.x += a * t;
-
-        b.velocity.y += b.acceleration.y * t;
-        b.position.y += b.velocity.y * t;
 
         // --- CCD contact manifold ---
         ContactManifold m;
         m.bodyA = b.id;
         m.bodyB = wall.id;
         m.pointCount = 1;
-        m.points[0].normal = {-1.0, 0.0};
+        m.points[0].normal = {-1.0f, 0.0f};
         m.points[0].position = {wall.position.x, b.position.y};
-        m.points[0].penetration = 0.0;
+        m.points[0].penetration = 0.0f;
 
         merge_manifold(contact_manifolds, m);
 
-        // remaining time
+        // remaining x integration
         float remaining = dt - t;
-        Integrator::semi_implicit_euler(b, remaining);
+        b.velocity.x += b.acceleration.x * remaining;
+        b.position.x += b.velocity.x * remaining;
     }
 }
 
