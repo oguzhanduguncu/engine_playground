@@ -25,14 +25,14 @@ int main()
     Body b;
     b.id = 0;
     b.type = BodyType::Dynamic;
-    b.position = {-0.0, 8.0};
+    b.position = {0.0, 2.0};
     b.velocity = {0.0, 0.0};
-    b.acceleration = {0.3,-9.8};
+    b.acceleration = {2.3,-9.8};
     b.invMass = 1.0;
 
     Body wall;
     wall.id = 1;
-    wall.type = BodyType::Kinematic;
+    wall.type = BodyType::Static;
     wall.position = { 8.0, 2.0 };
     wall.velocity = { 0.0, 0.0 };
     wall.acceleration = { 0.0, 0.0 };
@@ -41,7 +41,7 @@ int main()
     Body b2;
     b2.id = 2;
     b2.type = BodyType::Dynamic;
-    b2.position = {-3.0, 8.0};
+    b2.position = {-3.0, 1.4};
     b2.velocity = {0.5, 0.0};
     b2.acceleration = {0.8,-9.8};
     b2.invMass = 1.0;
@@ -64,11 +64,29 @@ int main()
     platform.invMass = 0.0;
     platform.shape.type = Type::plane;
 
+    Body player;
+    player.id = 5;
+    player.type = BodyType::Kinematic;
+    player.position = {-6.0, 2.0};
+    player.velocity = {2.0, 0.0};
+    player.acceleration = {0.0,0.0};
+    player.invMass = 1.0;
+
+    Body ball;
+    ball.id = 6;
+    ball.type = BodyType::Dynamic;
+    ball.position = {-4.0, 2.0};
+    ball.velocity = {0.0, 0.0};
+    ball.acceleration = {0.0,0.0};
+    ball.invMass = 1.0;
+
     world.getBodies().push_back(b);
     world.getBodies().push_back(wall);
     world.getBodies().push_back(ground);
     world.getBodies().push_back(platform);
     world.getBodies().push_back(b2);
+    world.getBodies().push_back(player);
+    world.getBodies().push_back(ball);
 
     render_2d renderer{800,600};
 

@@ -212,6 +212,11 @@ void PhysicsWorld::step_bodies_with_ccd(
         return b.type == BodyType::Kinematic;
     });
 
+    auto staticBodies = bodies | std::views::filter(
+    [](const Body& b) {
+        return b.type == BodyType::Static;
+    });
+
    for (Body& wall : dynamicBodies)
     {
        for(Body& b : dynamicBodies) {
@@ -225,11 +230,21 @@ void PhysicsWorld::step_bodies_with_ccd(
 
     for (Body& wall : kinematicBodies)
     {
+        for(Body& b : dynamicBodies) {
+            check_ccd(b, wall, dt, contact_manifolds);
+        }
+    }
+
+    for (Body& wall : staticBodies)
+    {
        for(Body& b : dynamicBodies) {
 
            check_ccd(b, wall, dt, contact_manifolds);
 
             // --- DISCRETE CONTACT (STAYING CONTACT) ---
+           if (wall.shape.type == Type::plane) {
+               continue;
+           }
             ContactManifold m;
             if (discrete_wall_contact(b, wall, m)) {
                 merge_manifold(contact_manifolds, m);
@@ -248,6 +263,8 @@ void PhysicsWorld::check_ccd(Body &b, Body &wall, const float dt, std::vector<Co
            << " xB=" << wall.position.x << " yA=" << b.position.y
            << " yB=" << wall.position.y << " vA=" << b.velocity.x
            << " vB=" << wall.velocity.x << "\n";
+
+
 
     // --- RELATIVE MOTION ---
     const float x0 = b.position.x - wall.position.x;
