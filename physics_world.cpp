@@ -25,11 +25,11 @@ PhysicsWorld::PhysicsWorld(const float fixed_dt_seconds)
 
 void PhysicsWorld::update_kinematics(const float dt)
 {
-    for (Body &b: bodies) {
-        if (b.type == BodyType::Kinematic) {
-            b.position += b.velocity * dt;
-        }
-    }
+//    for (Body &b: bodies) {
+//        if (b.type == BodyType::Kinematic) {
+//            b.position += b.velocity * dt;
+//        }
+//    }
 }
 
 inline float bottom(const Body& b) {
@@ -121,7 +121,7 @@ void PhysicsWorld::integrate(std::vector<Body>& b, float dt) {
 
 void PhysicsWorld::update(const float frame_dt_seconds)
 {
-    update_kinematics(frame_dt_seconds);
+ //   update_kinematics(frame_dt_seconds);
     m_accumulator += frame_dt_seconds;
 
     while (m_accumulator >= m_fixed_dt) {
@@ -227,11 +227,35 @@ void PhysicsWorld::step_bodies_with_ccd(
            check_ccd(b, wall, dt, contact_manifolds);
            }
     }
-
+/*
     for (Body& wall : kinematicBodies)
     {
         for(Body& b : dynamicBodies) {
             check_ccd(b, wall, dt, contact_manifolds);
+
+            // --- DISCRETE CONTACT (STAYING CONTACT) ---
+            ContactManifold m;
+            if (discrete_wall_contact(b, wall, m)) {
+                merge_manifold(contact_manifolds, m);
+            }
+        }
+    }
+*/
+    for (Body& wall : staticBodies)
+    {
+        for(Body& b : kinematicBodies) {
+
+            if (wall.shape.type == Type::plane) {
+                continue;
+            }
+
+            check_ccd(b, wall, dt, contact_manifolds);
+
+            // --- DISCRETE CONTACT (STAYING CONTACT) ---
+            ContactManifold m;
+            if (discrete_wall_contact(b, wall, m)) {
+                merge_manifold(contact_manifolds, m);
+            }
         }
     }
 
@@ -239,15 +263,17 @@ void PhysicsWorld::step_bodies_with_ccd(
     {
        for(Body& b : dynamicBodies) {
 
-           check_ccd(b, wall, dt, contact_manifolds);
-
-            // --- DISCRETE CONTACT (STAYING CONTACT) ---
            if (wall.shape.type == Type::plane) {
                continue;
            }
-            ContactManifold m;
-            if (discrete_wall_contact(b, wall, m)) {
-                merge_manifold(contact_manifolds, m);
+
+           check_ccd(b, wall, dt, contact_manifolds);
+
+            // --- DISCRETE CONTACT (STAYING CONTACT) ---
+
+           ContactManifold m;
+           if (discrete_wall_contact(b, wall, m)) {
+               merge_manifold(contact_manifolds, m);
            }
        }
     }
