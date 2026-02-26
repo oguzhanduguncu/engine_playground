@@ -42,3 +42,37 @@ elseif (MSVC)
             /permissive-
     )
 endif()
+
+# --- Testing ---
+include(FetchContent)
+FetchContent_Declare(
+    googletest
+    GIT_REPOSITORY https://github.com/google/googletest.git
+    GIT_TAG        v1.14.0
+)
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
+
+enable_testing()
+
+add_executable(engine_tests
+    tests/test_integrator.cpp
+    tests/test_body.cpp
+    tests/test_physics_world.cpp
+    tests/test_contact_solver.cpp
+    tests/test_ccd.cpp
+    tests/test_accumulator.cpp
+    physics_world.cpp
+    Integrator.cpp
+)
+
+target_include_directories(engine_tests PRIVATE ${CMAKE_SOURCE_DIR} external/glm)
+target_link_libraries(engine_tests PRIVATE GTest::gtest_main)
+
+if(UNIX)
+    target_compile_options(engine_tests PRIVATE -Wall -Wextra -Wpedantic)
+    target_link_libraries(engine_tests PRIVATE m)
+endif()
+
+include(GoogleTest)
+gtest_discover_tests(engine_tests)
