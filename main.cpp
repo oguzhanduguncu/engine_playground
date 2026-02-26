@@ -68,7 +68,7 @@ int main()
     player.id = 5;
     player.type = BodyType::Kinematic;
     player.position = {-6.0, 2.0};
-    player.velocity = {2.0, 0.0};
+    player.velocity = {3.0, 0.0};
     player.acceleration = {0.0,0.0};
     player.invMass = 1.0;
 

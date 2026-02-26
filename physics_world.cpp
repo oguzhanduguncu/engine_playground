@@ -227,10 +227,10 @@ void PhysicsWorld::step_bodies_with_ccd(
            check_ccd(b, wall, dt, contact_manifolds);
            }
     }
-/*
-    for (Body& wall : kinematicBodies)
+
+    for (Body& wall : dynamicBodies)
     {
-        for(Body& b : dynamicBodies) {
+        for(Body& b : kinematicBodies) {
             check_ccd(b, wall, dt, contact_manifolds);
 
             // --- DISCRETE CONTACT (STAYING CONTACT) ---
@@ -240,7 +240,7 @@ void PhysicsWorld::step_bodies_with_ccd(
             }
         }
     }
-*/
+
     for (Body& wall : staticBodies)
     {
         for(Body& b : kinematicBodies) {
@@ -314,6 +314,12 @@ void PhysicsWorld::check_ccd(Body &b, Body &wall, const float dt, std::vector<Co
         // integrate x-axis only until TOI
         b.position.x += b.velocity.x * t + 0.5f * a * t * t;
         b.velocity.x += a * t;
+
+        if (b.type == BodyType::Kinematic && wall.type == BodyType::Dynamic)
+        {
+            wall.velocity = b.velocity;
+            return;
+        }
 
         // --- CCD contact manifold ---
         ContactManifold m;
