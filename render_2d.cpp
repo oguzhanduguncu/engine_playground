@@ -5,6 +5,8 @@
 #include "render_2d.h"
 
 #include <SDL.h>
+#include <SDL_image.h>
+#include <iostream>
 
 #include "physics_world.h"
 #include "debug_draw.h"
@@ -33,6 +35,10 @@ void render_2d::init(int width, int height)
 {
     if (SDL_Init(SDL_INIT_VIDEO) != 0)
         return;
+
+    if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG)) {
+        std::cerr << "IMG_Init failed: " << IMG_GetError() << std::endl;
+    }
 
     m_window = SDL_CreateWindow(
         "Simulation Prototype",
@@ -69,8 +75,27 @@ void render_2d::init(int width, int height)
     SDL_RenderSetViewport(m_renderer, &vp);
 }
 
+void render_2d::loadTexture(const std::string& path)
+{
+    SDL_Surface* surface = IMG_Load(path.c_str());
+    if (!surface) {
+        std::cerr << "IMG_Load failed: " << IMG_GetError() << std::endl;
+        return;
+    }
+    m_playerTexture = SDL_CreateTextureFromSurface(m_renderer, surface);
+    SDL_FreeSurface(surface);
+    if (!m_playerTexture) {
+        std::cerr << "SDL_CreateTextureFromSurface failed: " << SDL_GetError() << std::endl;
+    }
+}
+
 void render_2d::shutdown()
 {
+    if (m_playerTexture) {
+        SDL_DestroyTexture(m_playerTexture);
+        m_playerTexture = nullptr;
+    }
+
     if (m_renderer) {
         SDL_DestroyRenderer(m_renderer);
         m_renderer = nullptr;
@@ -81,6 +106,7 @@ void render_2d::shutdown()
         m_window = nullptr;
     }
 
+    IMG_Quit();
     SDL_Quit();
 }
 
@@ -98,6 +124,7 @@ void render_2d::render(PhysicsWorld& world)
 
     draw_frame(
         m_renderer,
-        world
+        world,
+        m_playerTexture
     );
 }

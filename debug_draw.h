@@ -12,7 +12,8 @@
 
 void draw_frame(
     SDL_Renderer* renderer,
-    PhysicsWorld& world
+    PhysicsWorld& world,
+    SDL_Texture* playerTex = nullptr
 );
 
 void debug_draw_body(

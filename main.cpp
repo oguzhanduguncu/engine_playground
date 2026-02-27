@@ -71,6 +71,8 @@ int main()
     player.velocity = {3.0, 0.0};
     player.acceleration = {0.0,0.0};
     player.invMass = 1.0;
+    player.halfWidth = 1.5f;
+    player.halfHeight = 1.5f;
 
     Body ball;
     ball.id = 6;
@@ -89,6 +91,7 @@ int main()
     world.getBodies().push_back(ball);
 
     render_2d renderer{800,600};
+    renderer.loadTexture(ASSET_DIR "cat.png");
 
     for (int frame = 0; frame < 300; ++frame) {
         auto now = engine::now();

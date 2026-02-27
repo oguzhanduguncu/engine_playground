@@ -22,12 +22,16 @@ public:
     void handleEvents();
     void render(PhysicsWorld& world);
 
+    void loadTexture(const std::string& path);
+    SDL_Texture* playerTexture() const { return m_playerTexture; }
+
 private:
     void init(int width, int height);
     void shutdown();
 
     SDL_Window* m_window   = nullptr;
     SDL_Renderer* m_renderer = nullptr;
+    SDL_Texture* m_playerTexture = nullptr;
 
     bool m_running = true;
 

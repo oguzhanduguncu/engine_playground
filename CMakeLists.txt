@@ -11,6 +11,8 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 find_package(SDL2 REQUIRED)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(SDL2_IMAGE REQUIRED SDL2_image)
 
 add_executable(engineloop
         render_2d.cpp
@@ -24,9 +26,11 @@ add_executable(engineloop
 target_link_libraries(engineloop
         PRIVATE
         SDL2::SDL2
+        ${SDL2_IMAGE_LIBRARIES}
 )
 
-target_include_directories(engineloop PRIVATE external/glm)
+target_include_directories(engineloop PRIVATE external/glm ${SDL2_IMAGE_INCLUDE_DIRS})
+target_compile_definitions(engineloop PRIVATE ASSET_DIR="${CMAKE_SOURCE_DIR}/assets/")
 
 if(UNIX)
     target_compile_options(engineloop PRIVATE

@@ -177,7 +177,8 @@ void debug_draw_body(
 
 void draw_frame(
     SDL_Renderer* renderer,
-    PhysicsWorld& world)
+    PhysicsWorld& world,
+    SDL_Texture* playerTex)
 {
     SDL_RenderSetLogicalSize(renderer, 0, 0);
     SDL_RenderSetScale(renderer, 1.0f, 1.0f);
@@ -213,6 +214,25 @@ void draw_frame(
     // ---- Bodies ----
     for (const Body& body : world.getBodies()) {
         debug_draw_body(renderer, body, screen_w, screen_h, ppm);
+        // Draw cat texture on top for player body (id 5)
+        if (body.id == 5 && playerTex) {
+            float bottom_y = PhysicsWorld::GROUND_Y + body.halfHeight;
+            float top_y = bottom_y + body.halfHeight * 2.0f;
+            SDL_Point min = world_to_screen(
+                body.position.x - body.halfWidth,
+                bottom_y,
+                screen_w, screen_h, ppm);
+            SDL_Point max = world_to_screen(
+                body.position.x + body.halfWidth,
+                top_y,
+                screen_w, screen_h, ppm);
+            SDL_Rect dst;
+            dst.x = min.x;
+            dst.y = max.y;
+            dst.w = max.x - min.x;
+            dst.h = min.y - max.y;
+            SDL_RenderCopy(renderer, playerTex, nullptr, &dst);
+        }
     }
 
     SDL_RenderPresent(renderer);
