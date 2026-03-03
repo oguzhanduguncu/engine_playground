@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "body.h"
+#include "Broadphase.h"
 #include "contact_manifold.h"
 
 class PhysicsWorld {
@@ -63,6 +64,7 @@ public:
 );
 
 private:
+    Broadphase broadphase;
     std::vector<ContactManifold> manifolds;
     std::vector<Body> bodies;
     const float m_fixed_dt;

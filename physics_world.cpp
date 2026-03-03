@@ -202,93 +202,82 @@ void PhysicsWorld::step_bodies_with_ccd(
 {
     contact_manifolds.clear();
 
-    auto dynamicBodies = bodies | std::views::filter(
-        [](const Body& b) {
-            return b.type == BodyType::Dynamic;
-        });
+    // Broadphase: build grid and get candidate pairs
+    broadphase.build(bodies);
+    auto pairs = broadphase.computePairs();
 
-    auto kinematicBodies = bodies | std::views::filter(
-    [](const Body& b) {
-        return b.type == BodyType::Kinematic;
-    });
+    for (auto [i, j] : pairs) {
+        Body& a = bodies[i];
+        Body& b = bodies[j];
 
-    auto staticBodies = bodies | std::views::filter(
-    [](const Body& b) {
-        return b.type == BodyType::Static;
-    });
+        // Skip static-static (no collision response)
+        if (a.type == BodyType::Static && b.type == BodyType::Static)
+            continue;
 
-   for (Body& wall : dynamicBodies)
-    {
-       for(Body& b : dynamicBodies) {
-           if (b.id == wall.id)
-           {
-               continue;
-           }
-           check_ccd(b, wall, dt, contact_manifolds);
-           }
-    }
+        // Skip static planes (handled by solveY)
+        if (a.type == BodyType::Static && a.shape.type == Type::plane)
+            continue;
+        if (b.type == BodyType::Static && b.shape.type == Type::plane)
+            continue;
 
-    for (Body& wall : dynamicBodies)
-    {
-        for(Body& b : kinematicBodies) {
-            check_ccd(b, wall, dt, contact_manifolds);
-
-            // --- DISCRETE CONTACT (STAYING CONTACT) ---
-            ContactManifold m;
-            if (discrete_wall_contact(b, wall, m)) {
-                merge_manifold(contact_manifolds, m);
-            }
+        // Determine roles: moving body vs wall
+        // For dynamic-dynamic, check both directions
+        if (a.type == BodyType::Dynamic && b.type == BodyType::Dynamic) {
+            check_ccd(a, b, dt, contact_manifolds);
         }
-    }
-
-    for (Body& wall : staticBodies)
-    {
-        for(Body& b : kinematicBodies) {
-
-            if (wall.shape.type == Type::plane) {
-                continue;
-            }
-
-            check_ccd(b, wall, dt, contact_manifolds);
-
-            // --- DISCRETE CONTACT (STAYING CONTACT) ---
+        // Kinematic-Dynamic: kinematic pushes dynamic
+        else if (a.type == BodyType::Kinematic && b.type == BodyType::Dynamic) {
+            check_ccd(a, b, dt, contact_manifolds);
             ContactManifold m;
-            if (discrete_wall_contact(b, wall, m)) {
+            if (discrete_wall_contact(a, b, m))
                 merge_manifold(contact_manifolds, m);
-            }
         }
-    }
-
-    for (Body& wall : staticBodies)
-    {
-       for(Body& b : dynamicBodies) {
-
-           if (wall.shape.type == Type::plane) {
-               continue;
-           }
-
-           check_ccd(b, wall, dt, contact_manifolds);
-
-            // --- DISCRETE CONTACT (STAYING CONTACT) ---
-
-           ContactManifold m;
-           if (discrete_wall_contact(b, wall, m)) {
-               merge_manifold(contact_manifolds, m);
-           }
-       }
+        else if (b.type == BodyType::Kinematic && a.type == BodyType::Dynamic) {
+            check_ccd(b, a, dt, contact_manifolds);
+            ContactManifold m;
+            if (discrete_wall_contact(b, a, m))
+                merge_manifold(contact_manifolds, m);
+        }
+        // Dynamic-Static or Static-Dynamic
+        else if (a.type == BodyType::Dynamic && b.type == BodyType::Static) {
+            check_ccd(a, b, dt, contact_manifolds);
+            ContactManifold m;
+            if (discrete_wall_contact(a, b, m))
+                merge_manifold(contact_manifolds, m);
+        }
+        else if (b.type == BodyType::Dynamic && a.type == BodyType::Static) {
+            check_ccd(b, a, dt, contact_manifolds);
+            ContactManifold m;
+            if (discrete_wall_contact(b, a, m))
+                merge_manifold(contact_manifolds, m);
+        }
+        // Kinematic-Static or Static-Kinematic
+        else if (a.type == BodyType::Kinematic && b.type == BodyType::Static) {
+            check_ccd(a, b, dt, contact_manifolds);
+            ContactManifold m;
+            if (discrete_wall_contact(a, b, m))
+                merge_manifold(contact_manifolds, m);
+        }
+        else if (b.type == BodyType::Kinematic && a.type == BodyType::Static) {
+            check_ccd(b, a, dt, contact_manifolds);
+            ContactManifold m;
+            if (discrete_wall_contact(b, a, m))
+                merge_manifold(contact_manifolds, m);
+        }
     }
 
     // Solve Y for all dynamic bodies (platform collision)
-    for (Body& b : dynamicBodies) {
-        solveY(b, dt);
+    for (Body& body : bodies) {
+        if (body.type == BodyType::Dynamic)
+            solveY(body, dt);
     }
 }
 
 void PhysicsWorld::check_ccd(Body &b, Body &wall, const float dt, std::vector<ContactManifold> &contact_manifolds) {
-    std::cout << "step=" << m_steps << " xA=" << b.position.x
+ /*   std::cout << "step=" << m_steps << " xA=" << b.position.x
            << " xB=" << wall.position.x << " yA=" << b.position.y
            << " yB=" << wall.position.y << " vA=" << b.velocity.x
-           << " vB=" << wall.velocity.x << "\n";
+           << " vB=" << wall.velocity.x << "\n";*/
 
 
 
@@ -305,6 +294,7 @@ void PhysicsWorld::check_ccd(Body &b, Body &wall, const float dt, std::vector<Co
     auto toi = compute_toi_1d(x0, v0, a, dt);
 
     if (toi.hit) {
+        std::cout << "collision: ";
         const float t = toi.t;
 
         float distanceY = std::abs(wall.position.y - b.position.y);

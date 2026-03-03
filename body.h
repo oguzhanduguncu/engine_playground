@@ -17,6 +17,7 @@ enum class BodyType {
 using BodyID = uint32_t;
 
 struct Body {
+    static constexpr float ALLOWED_BODY_SIZE {2.0f};
     BodyID id;
     BodyType type;
     glm::vec2 position{0.0, 0.0};

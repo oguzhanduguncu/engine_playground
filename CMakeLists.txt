@@ -21,6 +21,7 @@ add_executable(engineloop
         Integrator.cpp
         render_console.cpp
         main.cpp
+        Broadphase.cpp
 )
 
 target_link_libraries(engineloop
@@ -68,6 +69,8 @@ add_executable(engine_tests
     tests/test_accumulator.cpp
     physics_world.cpp
     Integrator.cpp
+        Broadphase.cpp
+        Broadphase.h
 )
 
 target_include_directories(engine_tests PRIVATE ${CMAKE_SOURCE_DIR} external/glm)

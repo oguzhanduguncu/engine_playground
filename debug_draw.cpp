@@ -192,7 +192,7 @@ void draw_frame(
     float sx, sy;
     SDL_RenderGetScale(renderer, &sx, &sy);
 
-    std::cout
+    /*std::cout
     << "[DRAW] output=" << rw << "x" << rh
     << " viewport=("
     << vp.x << "," << vp.y << " " << vp.w << "x" << vp.h
@@ -200,7 +200,7 @@ void draw_frame(
     << std::fixed << std::setprecision(2)
     << sx << ", " << sy
     << ")"
-    << std::endl;
+    << std::endl;*/
     fflush(stdout);
     SDL_RenderSetViewport(renderer, nullptr);
     int screen_w = 0;
