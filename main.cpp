@@ -18,7 +18,7 @@ bool prev_hit;
 
 int main()
 {
-    constexpr float physics_dt = 1.0f / 60.0f;
+    constexpr float physics_dt = 1.0f / 60.0f; // 60 Hz physics
     PhysicsWorld world(physics_dt);
 
     auto last = engine::now();
@@ -27,7 +27,8 @@ int main()
     b.id = 0;
     b.type = BodyType::Dynamic;
     b.position = {2.0, 2.0};
-    b.velocity = {2.0, 0.0};
+    b.velocity = {0.0, 0.0};
+    b.acceleration = {2.3,-9.8};
     b.invMass = 1.0;
 
     Body wall;
@@ -108,6 +109,17 @@ int main()
         b.w_alignment       = 10.0f;
         b.w_cohesion        = 1.0f;
         flock.add_boid(std::move(b));
+    }
+
+    for (int i = 0; i < 200; ++i) {
+        Body b;
+        b.id           = static_cast<uint32_t>(i);
+        b.type         = BodyType::Dynamic;
+        b.position     = {rx(rng), ry(rng)};
+        b.velocity     = {rv(rng), rv(rng)};
+        b.acceleration = {0.0f, 0.0f};
+        b.invMass      = 1.0f;
+//        world.getBodies().push_back(std::move(b));
     }
 
     world.attach_flock(&flock);
