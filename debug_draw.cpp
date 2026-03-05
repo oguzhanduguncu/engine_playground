@@ -5,6 +5,8 @@
 #include "debug_draw.h"
 
 #include "physics_world.h"
+#include "boid_flock.h"
+#include <glm/glm.hpp>
 #include <cmath>
 #include <iomanip>
 #include <iostream>
@@ -175,9 +177,12 @@ void debug_draw_body(
     }
 }
 
+static void draw_boid_shape(SDL_Renderer*, const Boid&, int, int, float);
+
 void draw_frame(
     SDL_Renderer* renderer,
     PhysicsWorld& world,
+    const Flock* flock,
     SDL_Texture* playerTex)
 {
     SDL_RenderSetLogicalSize(renderer, 0, 0);
@@ -235,5 +240,47 @@ void draw_frame(
         }
     }
 
+    // ---- Boids ----
+    if (flock) {
+        for (const Boid& b : flock->getBoids())
+            draw_boid_shape(renderer, b, screen_w, screen_h, ppm);
+    }
+
     SDL_RenderPresent(renderer);
 }
+
+// Draw a single boid as a triangle pointing in its velocity direction
+static void draw_boid_shape(
+    SDL_Renderer* renderer,
+    const Boid& boid,
+    int screen_w, int screen_h,
+    float ppm)
+{
+    float px = boid.body.position.x;
+    float py = boid.body.position.y;
+
+    glm::vec2 fwd{1.0f, 0.0f};
+    float spd = glm::length(boid.body.velocity);
+    if (spd > 0.001f) fwd = boid.body.velocity / spd;
+    glm::vec2 right{-fwd.y, fwd.x};
+
+    constexpr float TIP_LEN    = 0.4f;
+    constexpr float BASE_BACK  = 0.2f;
+    constexpr float BASE_HALF  = 0.15f;
+
+    glm::vec2 tip   = {px + fwd.x * TIP_LEN,  py + fwd.y * TIP_LEN};
+    glm::vec2 left  = {px - fwd.x * BASE_BACK + right.x * BASE_HALF,
+                       py - fwd.y * BASE_BACK + right.y * BASE_HALF};
+    glm::vec2 rght  = {px - fwd.x * BASE_BACK - right.x * BASE_HALF,
+                       py - fwd.y * BASE_BACK - right.y * BASE_HALF};
+
+    SDL_Point s_tip  = world_to_screen(tip.x,  tip.y,  screen_w, screen_h, ppm);
+    SDL_Point s_left = world_to_screen(left.x, left.y, screen_w, screen_h, ppm);
+    SDL_Point s_rght = world_to_screen(rght.x, rght.y, screen_w, screen_h, ppm);
+
+    SDL_SetRenderDrawColor(renderer, 255, 220, 50, 255);
+    SDL_RenderDrawLine(renderer, s_tip.x,  s_tip.y,  s_left.x, s_left.y);
+    SDL_RenderDrawLine(renderer, s_left.x, s_left.y, s_rght.x, s_rght.y);
+    SDL_RenderDrawLine(renderer, s_rght.x, s_rght.y, s_tip.x,  s_tip.y);
+}
+

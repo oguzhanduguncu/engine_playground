@@ -9,6 +9,7 @@
 
 
 class PhysicsWorld;
+class Flock;
 
 class render_2d {
 public:
@@ -21,6 +22,7 @@ public:
 
     void handleEvents();
     void render(PhysicsWorld& world);
+    void render(PhysicsWorld& world, Flock& flock);
 
     void loadTexture(const std::string& path);
     SDL_Texture* playerTexture() const { return m_playerTexture; }

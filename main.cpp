@@ -1,12 +1,13 @@
 #include <iostream>
 #include <thread>
+#include <random>
 #include "engine_time.h"
 #include "physics_world.h"
 #include "render_console.h"
-#include <random>
-
 #include "body.h"
 #include "render_2d.h"
+#include "boid_flock.h"
+#include "boid.h"
 
 std::mt19937 rng{std::random_device{}()};
 std::uniform_int_distribution jitter_ms(-5, 5);
@@ -17,7 +18,7 @@ bool prev_hit;
 
 int main()
 {
-    constexpr float physics_dt = 1.0f / 60.0f; // 60 Hz physics
+    constexpr float physics_dt = 1.0f / 60.0f;
     PhysicsWorld world(physics_dt);
 
     auto last = engine::now();
@@ -26,8 +27,7 @@ int main()
     b.id = 0;
     b.type = BodyType::Dynamic;
     b.position = {2.0, 2.0};
-    b.velocity = {0.0, 0.0};
-    b.acceleration = {2.3,-9.8};
+    b.velocity = {2.0, 0.0};
     b.invMass = 1.0;
 
     Body wall;
@@ -71,8 +71,6 @@ int main()
     player.velocity = {3.0, 0.0};
     player.acceleration = {0.0,0.0};
     player.invMass = 1.0;
-    player.halfWidth = 1.5f;
-    player.halfHeight = 1.5f;
 
     Body ball;
     ball.id = 6;
@@ -82,31 +80,62 @@ int main()
     ball.acceleration = {0.0,0.0};
     ball.invMass = 1.0;
 
-    world.getBodies().push_back(b);
-    world.getBodies().push_back(wall);
-    world.getBodies().push_back(ground);
-    world.getBodies().push_back(platform);
-    world.getBodies().push_back(b2);
-    world.getBodies().push_back(player);
-    world.getBodies().push_back(ball);
+ //   world.getBodies().push_back(b);
+ //   world.getBodies().push_back(wall);
+ //   world.getBodies().push_back(ground);
+ //   world.getBodies().push_back(platform);
+ //   world.getBodies().push_back(b2);
+ //   world.getBodies().push_back(player);
+ //   world.getBodies().push_back(ball);
 
-    render_2d renderer{800,600};
-    renderer.loadTexture(ASSET_DIR "cat.png");
+    std::uniform_real_distribution<float> rx(-Flock::WORLD_HALF_W, Flock::WORLD_HALF_W);
+    std::uniform_real_distribution<float> ry(-Flock::WORLD_HALF_H, Flock::WORLD_HALF_H);
+    std::uniform_real_distribution<float> rv(-2.0f, 2.0f);
 
-    for (int frame = 0; frame < 300; ++frame) {
+    Flock flock;
+    for (int i = 0; i < 200; ++i) {
+        Boid b;
+        b.body.id           = static_cast<uint32_t>(i);
+        b.body.type         = BodyType::Dynamic;
+        b.body.position     = {rx(rng), ry(rng)};
+        b.body.velocity     = {rv(rng), rv(rng)};
+        b.body.acceleration = {0.0f, 0.0f};
+        b.body.invMass      = 1.0f;
+        b.perception        = 2.5f;
+        b.max_speed         = 9.0f;
+        b.max_force         = 2.5f;
+        b.w_separation      = 10.5f;
+        b.w_alignment       = 10.0f;
+        b.w_cohesion        = 1.0f;
+        flock.add_boid(std::move(b));
+    }
+
+    world.attach_flock(&flock);
+
+    render_2d renderer{800, 600};
+//    renderer.loadTexture(ASSET_DIR "cat.png");
+
+//    for (int frame = 0; frame < 300; ++frame) {
+//        auto now = engine::now();
+//        std::chrono::duration<float> frame_dt = now - last;
+//        last = now;
+//        int base_ms = 16;
+//        int jitter = jitter_ms(rng);
+//        std::vector<ContactManifold> manifolds;
+//        world.update(frame_dt.count());
+//        std::cout << "RENDER manifolds.size = " << world.getManifolds().size() << "\n";
+//        renderer.render(world);
+//        std::this_thread::sleep_for(std::chrono::milliseconds(base_ms + jitter));
+//    }
+
+    while (renderer.isRunning()) {
+        renderer.handleEvents();
+
         auto now = engine::now();
-        std::chrono::duration<float> frame_dt = now - last;
+        std::chrono::duration<float> dt = now - last;
         last = now;
-        int base_ms = 16; // ~60 FPS
-        int jitter = jitter_ms(rng); // simulation of unsteady frame pacing
 
-        std::vector<ContactManifold> manifolds;
-        world.update(frame_dt.count());
-        std::cout << "RENDER manifolds.size = " << world.getManifolds().size() << "\n";
-
-        renderer.render(world);
-
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(base_ms + jitter));
+        world.update(dt.count());
+        renderer.render(world,flock);
     }
 }

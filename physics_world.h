@@ -11,6 +11,8 @@
 #include "Broadphase.h"
 #include "contact_manifold.h"
 
+class Flock;
+
 class PhysicsWorld {
 public:
     static constexpr float slop = 0.005f;
@@ -20,6 +22,10 @@ public:
     static constexpr float GROUND_Y = 0.0f;
 
     explicit PhysicsWorld(float fixed_dt_seconds);
+
+    void attach_flock(Flock* flock) { m_flock = flock; }
+
+    bool check_flock() const { return (m_flock != nullptr);}
 
     void update_kinematics(float dt);
 
@@ -70,6 +76,7 @@ private:
     const float m_fixed_dt;
     float m_accumulator = 0.0;
     std::uint64_t m_steps = 0;
+    Flock* m_flock = nullptr;
 };
 
 

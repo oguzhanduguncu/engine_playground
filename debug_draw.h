@@ -10,9 +10,12 @@
 #include "physics_world.h"
 #include "body.h"
 
+class Flock;
+
 void draw_frame(
     SDL_Renderer* renderer,
     PhysicsWorld& world,
+    const Flock* flock = nullptr,
     SDL_Texture* playerTex = nullptr
 );
 

@@ -112,7 +112,13 @@ void render_2d::shutdown()
 
 void render_2d::handleEvents()
 {
-    SDL_PumpEvents();
+    SDL_Event e;
+    while (SDL_PollEvent(&e)) {
+        if (e.type == SDL_QUIT)
+            m_running = false;
+        if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE)
+            m_running = false;
+    }
 }
 
 void render_2d::render(PhysicsWorld& world)
@@ -122,9 +128,15 @@ void render_2d::render(PhysicsWorld& world)
 
     handleEvents();
 
-    draw_frame(
-        m_renderer,
-        world,
-        m_playerTexture
-    );
+    draw_frame(m_renderer, world, nullptr, m_playerTexture);
+}
+
+void render_2d::render(PhysicsWorld& world, Flock& flock)
+{
+    if (!isValid())
+        return;
+
+    handleEvents();
+
+    draw_frame(m_renderer, world, &flock, m_playerTexture);
 }

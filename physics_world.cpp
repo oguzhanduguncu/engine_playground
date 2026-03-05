@@ -17,6 +17,7 @@
 
 #include "Integrator.h"
 #include "contact_manifold.h"
+#include "boid_flock.h"
 
 PhysicsWorld::PhysicsWorld(const float fixed_dt_seconds)
     : m_fixed_dt(fixed_dt_seconds)
@@ -138,6 +139,9 @@ void PhysicsWorld::fixed_step(float dt)
     solve_contacts(dt, 0.0);
     solve_split_impulse(dt);
     integrate_pseudo(dt);
+
+    if (m_flock)
+        m_flock->step(dt);
 }
 
 static TOIResult compute_toi_1d(const float x0, const float v0, const float a,
@@ -274,10 +278,11 @@ void PhysicsWorld::step_bodies_with_ccd(
 }
 
 void PhysicsWorld::check_ccd(Body &b, Body &wall, const float dt, std::vector<ContactManifold> &contact_manifolds) {
- /*   std::cout << "step=" << m_steps << " xA=" << b.position.x
+    std::cout << "step=" << m_steps << " xA=" << b.position.x
            << " xB=" << wall.position.x << " yA=" << b.position.y
            << " yB=" << wall.position.y << " vA=" << b.velocity.x
-           << " vB=" << wall.velocity.x << "\n";*/
+           << " vB=" << wall.velocity.x << " body id=" << b.id
+           << " wall id" << wall.id << "\n";
 
 
 
