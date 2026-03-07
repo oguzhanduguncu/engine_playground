@@ -85,3 +85,18 @@ endif()
 
 include(GoogleTest)
 gtest_discover_tests(engine_tests)
+
+# --- Benchmarks ---
+add_executable(bench_sim
+    bench.cpp
+    bench_main.cpp
+    boid_flock.cpp
+    physics_world.cpp
+    Integrator.cpp
+    Broadphase.cpp
+)
+target_include_directories(bench_sim PRIVATE ${CMAKE_SOURCE_DIR} external/glm)
+if(UNIX)
+    target_compile_options(bench_sim PRIVATE -O2 -g)
+    target_link_libraries(bench_sim PRIVATE m)
+endif()

@@ -278,11 +278,11 @@ void PhysicsWorld::step_bodies_with_ccd(
 }
 
 void PhysicsWorld::check_ccd(Body &b, Body &wall, const float dt, std::vector<ContactManifold> &contact_manifolds) {
-    std::cout << "step=" << m_steps << " xA=" << b.position.x
+ /*   std::cout << "step=" << m_steps << " xA=" << b.position.x
            << " xB=" << wall.position.x << " yA=" << b.position.y
            << " yB=" << wall.position.y << " vA=" << b.velocity.x
            << " vB=" << wall.velocity.x << " body id=" << b.id
-           << " wall id" << wall.id << "\n";
+           << " wall id" << wall.id << "\n";*/
 
 
 
@@ -292,14 +292,14 @@ void PhysicsWorld::check_ccd(Body &b, Body &wall, const float dt, std::vector<Co
     const float a = b.acceleration.x;
 
     if (!std::isfinite(x0) || !std::isfinite(v0)) {
-        std::cout << "INVALID RELATIVE STATE\n";
+//        std::cout << "INVALID RELATIVE STATE\n";
         return;
     }
 
     auto toi = compute_toi_1d(x0, v0, a, dt);
 
     if (toi.hit) {
-        std::cout << "collision: ";
+//        std::cout << "collision: ";
         const float t = toi.t;
 
         float distanceY = std::abs(wall.position.y - b.position.y);

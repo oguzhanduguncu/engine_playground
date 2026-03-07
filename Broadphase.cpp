@@ -22,7 +22,7 @@ void Broadphase::build(const std::vector<Body>& bodies)
         Cell c{cx,cy};
 
         grid[c].push_back(i);
-        std::cout << "cell bucket: " << grid.bucket(c) << " of the body ID: " << b.id << std::endl;
+//        std::cout << "cell bucket: " << grid.bucket(c) << " of the body ID: " << b.id << std::endl;
     }
 }
 

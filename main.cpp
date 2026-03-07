@@ -108,10 +108,10 @@ int main()
         b.w_separation      = 10.5f;
         b.w_alignment       = 10.0f;
         b.w_cohesion        = 1.0f;
-        flock.add_boid(std::move(b));
+        flock.add_boid(b);
     }
 
-    for (int i = 0; i < 200; ++i) {
+    for (int i = 0; i < 500; ++i) {
         Body b;
         b.id           = static_cast<uint32_t>(i);
         b.type         = BodyType::Dynamic;
@@ -119,7 +119,7 @@ int main()
         b.velocity     = {rv(rng), rv(rng)};
         b.acceleration = {0.0f, 0.0f};
         b.invMass      = 1.0f;
-//        world.getBodies().push_back(std::move(b));
+//        world.getBodies().push_back(b);
     }
 
     world.attach_flock(&flock);
