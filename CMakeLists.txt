@@ -23,6 +23,7 @@ add_executable(engineloop
         main.cpp
         Broadphase.cpp
         boid_flock.cpp
+        rvo_solver.cpp
 )
 
 target_link_libraries(engineloop
@@ -68,11 +69,13 @@ add_executable(engine_tests
     tests/test_contact_solver.cpp
     tests/test_ccd.cpp
     tests/test_accumulator.cpp
+    tests/test_rvo.cpp
     physics_world.cpp
     Integrator.cpp
         Broadphase.cpp
         Broadphase.h
         boid_flock.cpp
+        rvo_solver.cpp
 )
 
 target_include_directories(engine_tests PRIVATE ${CMAKE_SOURCE_DIR} external/glm)
