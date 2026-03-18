@@ -97,6 +97,7 @@ add_executable(bench_sim
     physics_world.cpp
     Integrator.cpp
     Broadphase.cpp
+    rvo_solver.cpp
 )
 target_include_directories(bench_sim PRIVATE ${CMAKE_SOURCE_DIR} external/glm)
 if(UNIX)

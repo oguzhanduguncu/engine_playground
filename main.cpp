@@ -8,6 +8,7 @@
 #include "render_2d.h"
 #include "boid_flock.h"
 #include "boid.h"
+#include "rvo_solver.h"
 
 std::mt19937 rng{std::random_device{}()};
 std::uniform_int_distribution jitter_ms(-5, 5);
@@ -20,8 +21,35 @@ int main()
 {
     constexpr float physics_dt = 1.0f / 60.0f; // 60 Hz physics
     PhysicsWorld world(physics_dt);
+    RVOSolver solver(physics_dt);
 
     auto last = engine::now();
+
+    for (int i = 0; i < 10; ++i) {
+        glm::vec2 pos  = {-200.0f, -90.0f + i * 20.0f};
+        uint32_t  id   = solver.addAgent(pos, {0,0}, 8.0f, 100.0f, 150.0f, 2.0f);
+        solver.setPreferredVelocity(id, {100.0f, 0.0f});
+    }
+
+    for (int i = 0; i < 10; ++i) {
+        glm::vec2 pos  = {200.0f, -90.0f + i * 20.0f};
+        uint32_t  id   = solver.addAgent(pos, {0,0}, 8.0f, 100.0f, 150.0f, 2.0f);
+        solver.setPreferredVelocity(id, {-100.0f, 0.0f});
+    }
+
+    for (int step = 0; step < 300; ++step) {
+        solver.step();
+
+        if (step % 30 == 0) {
+            std::cout << "--- Step " << step << " ---\n";
+            for (size_t i = 0; i < solver.getAgents().size(); ++i) {
+                const auto& a = solver.getAgents()[i];
+                std::cout << "Agent " << i
+                          << " pos=(" << a.body.position.x << ", " << a.body.position.y << ")"
+                          << " vel=(" << a.body.velocity.x << ", " << a.body.velocity.y << ")\n";
+            }
+        }
+    }
 
     Body b;
     b.id = 0;
@@ -108,7 +136,7 @@ int main()
         b.w_separation      = 10.5f;
         b.w_alignment       = 10.0f;
         b.w_cohesion        = 1.0f;
-        flock.add_boid(b);
+//        flock.add_boid(b);
     }
 
     for (int i = 0; i < 500; ++i) {
@@ -122,23 +150,9 @@ int main()
 //        world.getBodies().push_back(b);
     }
 
-    world.attach_flock(&flock);
+//    world.attach_flock(&flock);
 
     render_2d renderer{800, 600};
-//    renderer.loadTexture(ASSET_DIR "cat.png");
-
-//    for (int frame = 0; frame < 300; ++frame) {
-//        auto now = engine::now();
-//        std::chrono::duration<float> frame_dt = now - last;
-//        last = now;
-//        int base_ms = 16;
-//        int jitter = jitter_ms(rng);
-//        std::vector<ContactManifold> manifolds;
-//        world.update(frame_dt.count());
-//        std::cout << "RENDER manifolds.size = " << world.getManifolds().size() << "\n";
-//        renderer.render(world);
-//        std::this_thread::sleep_for(std::chrono::milliseconds(base_ms + jitter));
-//    }
 
     while (renderer.isRunning()) {
         renderer.handleEvents();
