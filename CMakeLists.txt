@@ -24,6 +24,10 @@ add_executable(engineloop
         Broadphase.cpp
         boid_flock.cpp
         rvo_solver.cpp
+        scenario_manager.cpp
+        scenarios/PhysicsScenario.cpp
+        scenarios/BoidScenario.cpp
+        scenarios/RvoScenario.cpp
 )
 
 target_link_libraries(engineloop
@@ -32,7 +36,11 @@ target_link_libraries(engineloop
         ${SDL2_IMAGE_LIBRARIES}
 )
 
-target_include_directories(engineloop PRIVATE external/glm ${SDL2_IMAGE_INCLUDE_DIRS})
+target_include_directories(engineloop PRIVATE
+        ${CMAKE_SOURCE_DIR}
+        external/glm
+        ${SDL2_IMAGE_INCLUDE_DIRS}
+)
 target_compile_definitions(engineloop PRIVATE ASSET_DIR="${CMAKE_SOURCE_DIR}/assets/")
 
 if(UNIX)
@@ -72,10 +80,9 @@ add_executable(engine_tests
     tests/test_rvo.cpp
     physics_world.cpp
     Integrator.cpp
-        Broadphase.cpp
-        Broadphase.h
-        boid_flock.cpp
-        rvo_solver.cpp
+    Broadphase.cpp
+    boid_flock.cpp
+    rvo_solver.cpp
 )
 
 target_include_directories(engine_tests PRIVATE ${CMAKE_SOURCE_DIR} external/glm)

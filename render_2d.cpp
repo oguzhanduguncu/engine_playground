@@ -112,12 +112,16 @@ void render_2d::shutdown()
 
 void render_2d::handleEvents()
 {
+    m_lastKey = SDLK_UNKNOWN;
     SDL_Event e;
     while (SDL_PollEvent(&e)) {
         if (e.type == SDL_QUIT)
             m_running = false;
-        if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE)
-            m_running = false;
+        if (e.type == SDL_KEYDOWN) {
+            if (e.key.keysym.sym == SDLK_ESCAPE)
+                m_running = false;
+            m_lastKey = e.key.keysym.sym;
+        }
     }
 }
 
