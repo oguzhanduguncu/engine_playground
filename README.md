@@ -14,14 +14,6 @@ Install SDL2:
 Linux (Ubuntu / Debian):
 sudo apt update
 sudo apt install -y libsdl2-dev
-Windows (vcpkg – recommended):
-git clone https://github.com/microsoft/vcpkg.git
-cd vcpkg
-.\bootstrap-vcpkg.bat
-.\vcpkg install sdl2
-Configure CMake with vcpkg:
-cmake -B build -S . ^
-  -DCMAKE_TOOLCHAIN_FILE=C:/path/to/vcpkg/scripts/buildsystems/vcpkg.cmake
 Build:
 mkdir build
 cd build
